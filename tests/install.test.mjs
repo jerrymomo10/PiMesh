@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { inferenceArgs, root, run, sandbox, transcriptRows } from './helpers.mjs';
 
-test('package installs offline into a clean prefix and runs the real Pi recorder', { timeout: 120000 }, () => {
+test('package installs into a clean prefix and runs the real Pi recorder offline', { timeout: 120000 }, () => {
   const box = sandbox();
-  // Installation uses only the cache populated by npm ci, never credentials or the network.
+  // Model inference stays offline. npm may need registry metadata even after npm ci.
   const npmEnv = { PATH: process.env.PATH, HOME: process.env.HOME, TMPDIR: box.base };
   if (process.env.npm_config_cache) npmEnv.npm_config_cache = process.env.npm_config_cache;
   function npm(args, cwd = root) {
@@ -16,12 +16,12 @@ test('package installs offline into a clean prefix and runs the real Pi recorder
     return result;
   }
   const packed = JSON.parse(npm(['pack', '--json', '--ignore-scripts', '--pack-destination', box.base]).stdout)[0];
-  for (const path of ['bin/meshpi.mjs', 'src/transcript.mjs', 'extensions/transcript.mjs']) {
+  for (const path of ['bin/meshpi.mjs', 'src/transcript.mjs', 'extensions/transcript.mjs', 'npm-shrinkwrap.json']) {
     assert.ok(packed.files.some((file) => file.path === path), path);
   }
   assert.ok(packed.files.every((file) => !/^(tests|node_modules|\.git|\.meshpi)\//.test(file.path)));
   const prefix = join(box.base, 'installed');
-  npm(['install', '--global', '--offline', '--ignore-scripts', '--no-audit', '--no-fund',
+  npm(['install', '--global', '--prefer-offline', '--ignore-scripts', '--no-audit', '--no-fund',
     '--prefix', prefix, join(box.base, packed.filename)]);
   const executable = join(prefix, 'bin', 'meshpi');
   assert.ok(existsSync(executable));
@@ -40,7 +40,7 @@ test('package installs offline into a clean prefix and runs the real Pi recorder
   assert.deepEqual(Object.keys(installedManifest.bin), ['meshpi']);
   // Exercise the exact source-directory install command documented in README too.
   const sourcePrefix = join(box.base, 'source-install');
-  npm(['install', '--global', '--install-links', '--offline', '--ignore-scripts',
+  npm(['install', '--global', '--install-links', '--prefer-offline', '--ignore-scripts',
     '--no-audit', '--no-fund', '--prefix', sourcePrefix, '.']);
   const sourceCommand = join(sourcePrefix, 'bin', 'meshpi');
   const doctor = run(box, ['doctor'], sourceCommand);

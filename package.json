@@ -6,7 +6,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "bin": { "meshpi": "bin/meshpi.mjs" },
-  "files": ["bin/", "src/", "extensions/", "README.md", "AGENTS.md", "docs/"],
+  "files": ["bin/", "src/", "extensions/", "README.md", "AGENTS.md", "docs/", "npm-shrinkwrap.json"],
   "engines": { "node": ">=22.19.0" },
   "scripts": {
     "start": "node bin/meshpi.mjs",

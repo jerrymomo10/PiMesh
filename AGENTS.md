@@ -44,7 +44,8 @@ PiMesh 是一个基于 Pi、面向算法研究团队的开源协作 harness。
 
 开发命令：`npm ci --ignore-scripts`、`npm run check`、`npm test`、
 `npm run test:install`、`npm start -- --help`。无编译步骤。
-测试使用合成数据与离线模型，安装测试复用 npm 缓存并只写临时安装前缀。
+测试使用合成数据与离线模型，安装测试复用 npm 缓存、必要时访问 npm registry，
+只安装到临时前缀，不依赖真实模型或公司凭据。
 目录：`bin/` 为 CLI，`src/` 为本地存储，`extensions/` 为 Pi 扩展，
 `tests/` 为验证，`docs/` 为设计边界和 Transcript 契约。
 
