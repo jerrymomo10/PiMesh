@@ -8,11 +8,11 @@
 
 | 默认存储目录与多端文档 | `codex/default-meshpi-home` | [#2](https://github.com/jerrymomo10/PiMesh/pull/2) | [default-meshpi-home](default-meshpi-home.md) |
 
-| 团队服务与 PostgreSQL 测试部署 | `codex/team-service-bootstrap` | [#3](https://github.com/jerrymomo10/PiMesh/pull/3) | [team-service-bootstrap](team-service-bootstrap.md) |
+| 团队服务与 PostgreSQL 测试部署 | `codex/team-service-bootstrap` | [#3](https://github.com/jerrymomo10/PiMesh/pull/3)（已关闭，纳入 #5） | [team-service-bootstrap](team-service-bootstrap.md) |
 
-| 受保护的团队目录页面 | `codex/team-dashboard` | [#4](https://github.com/jerrymomo10/PiMesh/pull/4)（基于 #3） | [team-dashboard](team-dashboard.md) |
+| 受保护的团队目录页面 | `codex/team-dashboard` | [#4](https://github.com/jerrymomo10/PiMesh/pull/4)（已关闭，纳入 #5） | [team-dashboard](team-dashboard.md) |
 
-| 客户端与服务端目录分层 | `codex/app-layout` | [#5](https://github.com/jerrymomo10/PiMesh/pull/5)（基于 #4） | [app-layout](app-layout.md) |
+| 客户端与服务端目录分层 | `codex/app-layout` | [#5](https://github.com/jerrymomo10/PiMesh/pull/5)（统一合入 main） | [app-layout](app-layout.md) |
 
 ## 新任务模板
 

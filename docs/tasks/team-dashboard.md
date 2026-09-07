@@ -1,5 +1,7 @@
 # team-dashboard
 
+> PR 已关闭，改动完整保留在 [PR #5](https://github.com/jerrymomo10/PiMesh/pull/5)，后续通过 #5 统一合入 main。以下保留阶段记录。
+
 ## 目标与验收条件
 - 通过服务器 IP:端口查看 PostgreSQL 中的用户、团队、成员关系、设备与项目。
 - 按维护者选择提供访问保护；页面只读，支持搜索和分页，空库不填充假数据。

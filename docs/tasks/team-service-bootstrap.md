@@ -1,5 +1,7 @@
 # team-service-bootstrap
 
+> PR 已关闭，改动完整保留在 [PR #5](https://github.com/jerrymomo10/PiMesh/pull/5)，后续通过 #5 统一合入 main。以下保留阶段记录。
+
 ## 目标与验收条件
 - 启动测试 PostgreSQL 与 PiMesh 服务，保留可配置接口。
 - 验证数据库连接、失败响应、恢复和 systemd 自启配置。
