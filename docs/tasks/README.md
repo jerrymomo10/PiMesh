@@ -20,7 +20,7 @@
 
 | 邀请码注册与账号登录 | `feat/invite-auth` | [#8](https://github.com/jerrymomo10/PiMesh/pull/8) | [invite-auth](invite-auth.md) |
 
-| 注册密码最低 8 位 | `codex/password-minimum-eight` | 待创建 | [password-minimum-eight](password-minimum-eight.md) |
+| 注册密码最低 8 位 | `codex/password-minimum-eight` | [#9](https://github.com/jerrymomo10/PiMesh/pull/9) | [password-minimum-eight](password-minimum-eight.md) |
 
 ## 新任务模板
 
