@@ -7,10 +7,10 @@
 ## 当前状态
 - 状态：待交接
 - 分支：`codex/team-service-bootstrap`
-- PR：待创建
+- PR：[#3](https://github.com/jerrymomo10/PiMesh/pull/3)
 - 最近更新时间：2026-09-07（Asia/Shanghai）
 - 最近工作设备：本地 macOS / 测试 ECS
-- 验证版本：本次实现（代码提交见 Git 历史；后续仅交接文档更新）。
+- 验证版本：`bdd648f`，服务器应用文件 SHA-256 与此版本一致；后续仅交接文档更新。
 
 ## 已完成
 - `server/` 独立服务、公开 npm 锁文件、健康检查与故障测试。
