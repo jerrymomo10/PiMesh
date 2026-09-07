@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn, execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
+import { request as httpsRequest } from 'node:https';
 import pg from 'pg';
 import { createAuth, digest, hashPassword } from '../src/auth.mjs';
 import { createDevices } from '../src/devices.mjs';
@@ -38,6 +39,14 @@ test('real PostgreSQL and real CLI entry: TLS login, device revoke, binding and 
       tlsOptions: { cert: ca, key: readFileSync(join(dir, 'key.pem')) } });
     app.listen(0, '127.0.0.1'); await once(app, 'listening');
     const origin = `https://127.0.0.1:${app.address().port}`;
+    const http = (path, authorization, data) => new Promise((resolve, reject) => {
+      const req = httpsRequest(new URL(path, origin), { ca, method: data === undefined ? 'GET' : 'POST',
+        headers: { Authorization: authorization, ...(data === undefined ? {} : { 'Content-Type': 'application/json', 'X-PiMesh-Request': '1' }) } }, (res) => {
+        let text = ''; res.on('data', (chunk) => text += chunk); res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(text) }));
+      });
+      req.on('error', reject); req.end(data === undefined ? undefined : JSON.stringify(data));
+    });
+    const admin = 'Basic ' + Buffer.from('admin:synthetic').toString('base64');
     const cli = (args, input = '') => new Promise((resolve, reject) => {
       const child = spawn(process.execPath, [fileURLToPath(new URL('../../cli/bin/meshpi.mjs', import.meta.url)), 'team', ...args], {
         cwd: dir, env: { ...process.env, MESHPI_HOME: join(dir, 'state') }, stdio: ['pipe','pipe','pipe'],
@@ -53,6 +62,10 @@ test('real PostgreSQL and real CLI entry: TLS login, device revoke, binding and 
     let credentials = JSON.parse(readFileSync(credentialPath));
     assert.equal(statSync(credentialPath).mode & 0o777, 0o600);
     const oldToken = credentials.token;
+    assert.equal((await http('/api/v1/admin/users', `Bearer ${oldToken}`)).status, 401);
+    const users = await http('/api/v1/admin/users', admin);
+    assert.equal(users.status, 200); assert.ok(users.body.items.every((row) => !('password_hash' in row)));
+    assert.equal((await http(`/api/v1/admin/users/${user}/devices`, admin)).status, 200);
     assert.equal((await cli(['whoami'])).code, 0);
     assert.equal((await cli(['teams'])).code, 0);
     assert.equal((await cli(['projects','--team',a.team_id])).code, 0);
@@ -77,18 +90,21 @@ test('real PostgreSQL and real CLI entry: TLS login, device revoke, binding and 
     await teams.remove(other, a.team_id, user);
     assert.equal((await cli(['status'])).code, 1);
     const web = await auth.login({ login: 'cli_owner', password });
-    await devices.password(user, { current_password: password, password: 'Test-456' });
+    assert.equal((await http('/api/v1/account/password', `Bearer ${credentials.token}`, { current_password: 'wrong', password: 'Test-456' })).status, 401);
+    assert.equal((await http('/api/v1/account/password', `Bearer ${credentials.token}`, { current_password: password, password: 'Test-456' })).status, 200);
     await assert.rejects(auth.me(web.token), { status: 401 });
     assert.equal((await cli(['whoami'])).code, 1);
     assert.equal((await cli(loginArgs, 'Test-456\n')).code, 0);
-    await devices.status(user, 'disabled');
+    assert.equal((await http(`/api/v1/admin/users/${user}/status`, admin, { status: 'disabled' })).status, 200);
     assert.equal((await cli(['whoami'])).code, 1);
     assert.equal((await cli(loginArgs, 'Test-456\n')).code, 1);
-    await devices.status(user, 'active');
+    assert.equal((await http(`/api/v1/admin/users/${user}/status`, admin, { status: 'active' })).status, 200);
     assert.equal((await cli(loginArgs, 'Test-456\n')).code, 0);
     credentials = JSON.parse(readFileSync(credentialPath));
-    assert.equal((await cli(['revoke','--device',credentials.device.device_id])).code, 0);
+    assert.equal((await http(`/api/v1/admin/users/${other}/devices/${credentials.device.device_id}/revoke`, admin, {})).status, 404);
+    assert.equal((await http(`/api/v1/admin/users/${user}/devices/${credentials.device.device_id}/revoke`, admin, {})).status, 200);
     assert.equal((await cli(['whoami'])).code, 1);
+    assert.equal((await http(`/api/v1/admin/users/${user}/password`, admin, { password: 'Reset-123' })).status, 200);
     assert.equal((await cli(['logout'])).code, 0);
     assert.equal((await cli(['unbind'])).code, 0);
     assert.equal((await cli(['whoami'])).code, 1);

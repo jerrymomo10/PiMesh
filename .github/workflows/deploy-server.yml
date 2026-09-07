@@ -44,6 +44,7 @@ jobs:
         env:
           TEST_DATABASE_URL: postgres://pimesh_test:synthetic-ci-password@127.0.0.1:5432/pimesh_test_auth
       - run: python3 apps/server/deploy/tests/test_release.py
+      - run: bash -n apps/server/deploy/admin-upgrade.sh && node --check apps/server/deploy/backup-database.mjs && node --check apps/server/deploy/verify-release.mjs
   deploy:
     needs: verify
     if: github.ref == 'refs/heads/main'
