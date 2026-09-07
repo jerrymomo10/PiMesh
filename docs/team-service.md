@@ -146,3 +146,7 @@ bash "$WORK/PiMesh-$REV/apps/server/deploy/admin-upgrade.sh" "$REV"
 
 此脚本需管理员手动执行，不由普通 workflow 提权调用。脚本语法检查不等于生产操作已验证，
 发布状态应记录实际管理员输出。发布后仍需用真实账号完成一次网页和 CLI 验收。
+
+`python3 apps/server/deploy/tests/test_admin_upgrade.py` 使用临时路径和模拟系统服务验证升级编排，
+覆盖备份/恢复/迁移失败不切换应用、切换后失败回退并检查旧应用、回退失败明确报警。
+它不连接生产数据库，不替代实际备份恢复或上线验证。

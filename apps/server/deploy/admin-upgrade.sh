@@ -48,14 +48,20 @@ cleanup() {
   trap - EXIT
   if [[ $restore_created == true ]]; then runuser -u postgres -- dropdb "$restore_db" || true; fi
   if [[ $success != true && $switched == true ]]; then
-    activate "$previous"
-    systemctl restart pimesh-team || true
-    echo 'New application failed; previous application restored. Database extensions retained.'
+    if activate "$previous" && systemctl restart pimesh-team &&
+       curl --config /etc/pimesh-deploy/health.conf --connect-timeout 5 --max-time 10 \
+         --retry 5 --retry-connrefused --retry-delay 2 --fail --silent --show-error; then
+      echo 'New application failed; previous application restored and ready. Database extensions retained.'
+    else
+      echo 'CRITICAL: rollback failed or previous application is not ready; administrator intervention required.' >&2
+    fi
   fi
   if [[ $success != true ]]; then echo "Upgrade incomplete. Backup/log directory retained: $backup_dir"; fi
   exit "$code"
 }
 trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 systemd-run --wait --pipe --collect --unit="pimesh-backup-$$" \
   --property=EnvironmentFile=/etc/pimesh/server.env \
   /usr/bin/node "$stage/deploy/backup-database.mjs" "$backup"
