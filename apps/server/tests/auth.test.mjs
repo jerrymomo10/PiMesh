@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
+import { readFileSync } from 'node:fs';
 import { createAuth, createLimiter, digest, hashPassword, verifyPassword, registration } from '../src/auth.mjs';
 import { createApp } from '../src/app.mjs';
 
@@ -22,6 +23,11 @@ test('registration validation and bounded rate limiter', () => {
   limiter('one', 1); assert.throws(() => limiter('one', 1), { status: 429 });
   assert.throws(() => limiter('two'), { status: 429 });
   time += 900001; limiter('two');
+  const html = readFileSync(new URL('../public/account.html', import.meta.url), 'utf8');
+  const pattern = new RegExp(`^(?:${html.match(/pattern="([^"]+)"/)[1]})$`, 'v');
+  assert.equal(pattern.test('research-user'), true);
+  assert.equal(pattern.test('research@example.test'), false);
+  assert.match(html, /src="\/account.js" type="module"/);
 });
 test('duplicate registration rolls back redemption and releases connection', async () => {
   const calls = []; let released = false;

@@ -13,7 +13,7 @@
 <button>登录</button><p>暂不提供邮箱找回密码，请妥善保存密码。</p></form>
 <form id="register"><h2>邀请码注册</h2>
 <label>邀请码<input name="invite" required minlength="43" maxlength="43" autocomplete="off" spellcheck="false"></label>
-<label>用户名<input name="username" autocomplete="username" pattern="[A-Za-z][A-Za-z0-9_-]{2,31}" required minlength="3" maxlength="32" aria-describedby="username-help"></label>
+<label>用户名<input name="username" autocomplete="username" pattern="[A-Za-z][A-Za-z0-9_\-]{2,31}" required minlength="3" maxlength="32" aria-describedby="username-help"></label>
 <small id="username-help">3–32 位，英文字母开头，可含数字、下划线和短横线，不区分大小写。</small>
 <label>邮箱<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
 <small>不发送验证邮件；邮箱不代表已验证身份。</small>

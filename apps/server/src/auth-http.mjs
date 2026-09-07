@@ -35,7 +35,7 @@ export function createAuthHttp(pool, { origin, adminHash, limiter = createLimite
       const admin = path.startsWith('/api/v1/admin/');
       // Use socket address, never untrusted X-Forwarded-For. Single-process limits.
       const address = req.socket.remoteAddress || 'unknown';
-      limiter(`${admin ? 'admin' : 'auth'}:${address}`, admin ? 120 : 120);
+      limiter(`${admin ? 'admin' : 'auth'}:${address}`, 120);
       if (admin && !basicMatches(req.headers.authorization, adminHash)) {
         res.setHeader('WWW-Authenticate', 'Basic realm="PiMesh invitations", charset="UTF-8"');
         throw failure(401, 'admin_authentication_required');
