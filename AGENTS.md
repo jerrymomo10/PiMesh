@@ -12,8 +12,11 @@ PiMesh 是一个基于 Pi、面向算法研究团队的开源协作 harness。
 
 当前已实现本地 `meshpi` CLI：Node.js ESM、锁定 Pi Core 0.84.2、原生 Session
 和追加式 Transcript 保存，默认存储于用户主目录的 `~/.meshpi/`，支持 `MESHPI_HOME` 覆盖。
-当前 CI 覆盖 macOS/Linux，Windows 原生环境尚未验证。具体依赖见 `package.json`，产品边界见 `docs/decisions.md`。
-团队服务、Memory 分层与共享策略、公司工具接入仍待设计，不把讨论草案视为已定要求。
+当前 CI 覆盖 macOS/Linux，Windows 原生环境尚未验证。具体依赖见 `apps/cli/package.json`，产品边界见 `docs/decisions.md`。
+已增加 `apps/server/` 独立团队服务基础（健康检查、受保护的团队目录与 PostgreSQL 连接），`apps/server/deploy/` 保存 systemd 模板。
+验证命令：`npm ci --prefix apps/server --ignore-scripts`、`npm test --prefix apps/server`。
+迁移：注入 `DATABASE_URL` 后运行 `npm run migrate --prefix apps/server`；真实数据库测试仅使用 `pimesh_test_` 前缀临时库。
+团队身份业务 API、Memory 分层与共享策略、公司工具接入仍待设计，不把讨论草案视为已定要求。
 
 - 不将规划中的能力描述为已实现功能。
 - 不仅凭“Pi”这个名称推断 SDK、包名、API 或运行机制；接入前核实具体项目及版本。
@@ -43,12 +46,13 @@ PiMesh 是一个基于 Pi、面向算法研究团队的开源协作 harness。
 
 ## 验证与文档
 
-开发命令：`npm ci --ignore-scripts`、`npm run check`、`npm test`、
+开发命令：`npm ci --ignore-scripts`、`npm run deps`、`npm run check`、`npm test`、
 `npm run test:install`、`npm start -- --help`。无编译步骤。
 测试使用合成数据与离线模型，安装测试复用 npm 缓存、必要时访问 npm registry，
 只安装到临时前缀，不依赖真实模型或公司凭据。
-目录：`bin/` 为 CLI，`src/` 为本地存储，`extensions/` 为 Pi 扩展，
-`tests/` 为验证，`docs/` 为设计边界和 Transcript 契约。
+目录：`apps/cli/` 为客户端，含 `bin/`、`src/`、`extensions/`、`tests/`；
+`apps/server/` 为服务端，含 `src/`、`public/`、`migrations/`、`tests/`、`deploy/`。
+`docs/` 为共享设计、部署和交接文档。两个应用各自锁定依赖，根目录仅提供开发命令。
 
 - 纯文档修改检查事实一致性、引用路径、示例和 `git diff --check`。
 - 引入可运行代码时，提供实际可执行的安装、运行和验证步骤，并更新 `README.md`。

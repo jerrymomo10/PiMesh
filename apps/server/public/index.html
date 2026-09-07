@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PiMesh · 团队目录</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="/"><span class="logo">P<span>·</span></span>PiMesh</a>
+  <div class="workspace"><span class="workspace-icon">研</span><div>团队工作空间<small>LOCAL AGENTS. SHARED INTELLIGENCE.</small></div></div>
+  <p class="nav-label">工作空间</p><nav id="navigation" aria-label="数据分类"></nav>
+  <div class="sidebar-bottom"><span class="dot"></span> 测试环境 <span class="readonly">只读</span><p>让研究记录连接到人、团队与项目。</p></div>
+</aside>
+<main>
+<header><span>工作空间 <span class="slash">/</span> 团队目录</span><span id="connection" class="connection">正在连接数据库…</span></header>
+<section class="heading"><div><p class="eyebrow">TEAM DIRECTORY</p><h1>团队目录</h1><p class="subtitle">在一个地方，查看成员、团队与研究项目。</p></div><button id="refresh" class="refresh">↻ <span>刷新数据</span></button></section>
+<section class="stats" id="stats" aria-label="数据概览"></section>
+<div class="notice"><span class="notice-icon">i</span><div>受保护的只读测试页<span>这里展示数据库中的基础信息。账户注册与项目创建功能正在建设中。</span></div></div>
+<section class="panel">
+  <div class="panel-heading"><div><h2 id="table-title">用户</h2><p id="table-description">查看用户身份与账户状态</p></div><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索用户…" aria-label="搜索当前分类"></label></div>
+  <div id="table-wrap" class="table-wrap"><table><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div>
+  <div id="message" role="status" aria-live="polite"></div>
+  <footer class="table-footer"><span id="result-count">正在读取…</span><div class="pagination"><button id="previous" aria-label="上一页">←</button><span id="page-label">第 1 页</span><button id="next" aria-label="下一页">→</button></div></footer>
+</section>
+<div class="page-footer"><span>PiMesh · 团队协作基础</span><span id="updated">等待首次同步</span></div>
+</main>
+</body></html>

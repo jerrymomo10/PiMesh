@@ -1,0 +1,22 @@
+[Unit]
+Description=PiMesh team service
+After=network.target postgresql.service
+
+[Service]
+User=pimesh
+Group=pimesh
+WorkingDirectory=/opt/pimesh/server
+EnvironmentFile=/etc/pimesh/server.env
+ExecStart=/usr/bin/node /opt/pimesh/server/src/index.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+MemoryMax=256M
+TasksMax=64
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
