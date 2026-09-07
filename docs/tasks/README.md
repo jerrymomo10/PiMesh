@@ -10,7 +10,7 @@
 
 | 团队服务与 PostgreSQL 测试部署 | `codex/team-service-bootstrap` | [#3](https://github.com/jerrymomo10/PiMesh/pull/3) | [team-service-bootstrap](team-service-bootstrap.md) |
 
-| 受保护的团队目录页面 | `codex/team-dashboard` | 待创建（基于 #3） | [team-dashboard](team-dashboard.md) |
+| 受保护的团队目录页面 | `codex/team-dashboard` | [#4](https://github.com/jerrymomo10/PiMesh/pull/4)（基于 #3） | [team-dashboard](team-dashboard.md) |
 
 ## 新任务模板
 
