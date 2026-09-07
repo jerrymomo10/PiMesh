@@ -11,13 +11,15 @@
 - 每码单次使用，默认 7 天有效；每批 1–50 个，有效期 1–30 天。
 - 完整邀请码仅在生成响应中显示，丢失后撤销并重新生成，数据库没有明文副本。
 
+首页 `/` 的浏览器登录弹窗使用独立目录查看账号；平台注册账号和邀请码管理员账号不能用于该弹窗。
+
 ## 身份与安全
 
 - 新注册 `user_id` 是 UUID 字符串，数据库继续使用 text 以兼容旧目录 ID 和外键；不强制重写历史记录。
 - 用户名：3–32 个 ASCII 字符，字母开头，后续字母/数字/下划线/短横线，统一小写。
 - 邮箱：去首尾空格、小写，独立唯一，`email_verified=false`；不声称用户拥有该邮箱。
 - 不验证邮箱可能导致他人抢占邮箱。当前不支持邮箱密码找回，不可用未验证邮箱自动恢复账号。
-- 密码：15–128 个 UTF-16 代码单元，不 trim、不静默截断；使用 Node 内置 scrypt，N=32768/r=8/p=3、随机 16 字节盐、32 字节结果。
+- 密码：8–128 个 UTF-16 代码单元，不 trim、不静默截断；使用 Node 内置 scrypt，N=32768/r=8/p=3、随机 16 字节盐、32 字节结果。
   参数参考 [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)，API 见 [Node crypto](https://nodejs.org/docs/latest-v22.x/api/crypto.html#cryptoscryptpassword-salt-keylen-options-callback)。
 - 会话：32 字节随机令牌，数据库仅存 SHA-256 摘要，固定 7 天有效；Cookie 为 `__Host-`、Secure、HttpOnly、SameSite=Strict、Path=/。
 - 退出在数据库撤销当前令牌；禁用用户后会话立即不可用。登录时清理过期会话。

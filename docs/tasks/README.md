@@ -20,6 +20,8 @@
 
 | 邀请码注册与账号登录 | `feat/invite-auth` | [#8](https://github.com/jerrymomo10/PiMesh/pull/8) | [invite-auth](invite-auth.md) |
 
+| 注册密码最低 8 位 | `codex/password-minimum-eight` | 待创建 | [password-minimum-eight](password-minimum-eight.md) |
+
 ## 新任务模板
 
 复制以下内容到 `<task-id>.md`，填写实际信息，并在上表添加入口。

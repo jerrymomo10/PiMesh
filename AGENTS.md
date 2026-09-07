@@ -19,6 +19,7 @@ PiMesh 是一个基于 Pi、面向算法研究团队的开源协作 harness。
 自动部署见 `.github/workflows/deploy-server.yml` 与 `docs/team-service.md`；部署回归验证：
 `python3 apps/server/deploy/tests/test_release.py`。数据库迁移不自动执行。
 服务端 0.2.0 增加邀请码注册（邮箱不验证）、用户名/邮箱密码登录及安全 Cookie 会话，显式配置启用。
+服务端 0.2.1 将注册密码最低长度调整为 8 位，上限仍为 128 位。
 管理员邀请码入口与只读目录账号分离；部署前须人工迁移，见 `docs/auth.md`。
 团队成员写入 API、CLI 团队登录、Memory 分层与共享策略、公司工具接入仍待设计，不把讨论草案视为已定要求。
 

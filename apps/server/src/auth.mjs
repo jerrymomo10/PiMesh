@@ -32,7 +32,7 @@ export function registration(input) {
   const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : '';
   if (!/^[a-z][a-z0-9_-]{2,31}$/.test(username) || email.length > 254 ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-      typeof input.password !== 'string' || input.password.length < 15 || input.password.length > 128 ||
+      typeof input.password !== 'string' || input.password.length < 8 || input.password.length > 128 ||
       typeof input.invite !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(input.invite)) {
     throw failure(400, 'invalid_registration');
   }
