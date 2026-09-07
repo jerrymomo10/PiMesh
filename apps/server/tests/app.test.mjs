@@ -18,7 +18,10 @@ test('health checks distinguish process liveness from database readiness', async
   const response = await fetch(`${base}/api/v1/health/ready`);
   assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), { status: 'unavailable' });
-  assert.equal((await fetch(`${base}/api/v1/health/live`)).status, 200);
+  const live = await fetch(`${base}/api/v1/health/live`);
+  assert.equal(live.status, 200);
+  assert.equal(live.headers.get('x-pimesh-version'), '0.2.0');
+  assert.deepEqual(await live.json(), { status: 'ok', version: '0.2.0' });
   assert.equal((await fetch(`${base}/api/v1/users`)).status, 404);
   assert.equal((await fetch(`${base}/api/v1/health/live`, { method: 'POST' })).status, 405);
 });

@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PiMesh · 邀请管理</title><link rel="stylesheet" href="/account.css"><script src="/invites.js" defer></script></head>
+<body><main><p class="brand">PiMesh · 平台管理</p><h1>注册邀请码</h1>
+<p>每码仅限一人注册，不授予团队或管理员权限。完整邀请码只在生成时显示，请及时保存。</p>
+<form id="generate"><label>数量（1–50）<input name="count" type="number" min="1" max="50" value="1" required></label>
+<label>有效天数（1–30）<input name="days" type="number" min="1" max="30" value="7" required></label><button>生成邀请码</button></form>
+<p id="message" role="status" aria-live="polite"></p><pre id="codes"></pre>
+<h2>最近 100 条</h2><button id="refresh">刷新列表</button><div id="list"></div>
+</main></body></html>
