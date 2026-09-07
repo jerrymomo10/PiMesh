@@ -29,6 +29,16 @@ test('registration validation and bounded rate limiter', () => {
   assert.equal(pattern.test('research@example.test'), false);
   assert.match(html, /src="\/account.js" type="module"/);
 });
+test('registration accepts 8 through 128 password units and preserves input', () => {
+  for (const password of ['Test-123', 'x'.repeat(128), ' spaced ']) {
+    assert.equal(registration({ ...fixture, password }).password, password);
+  }
+  for (const password of ['', 'x'.repeat(7), 'x'.repeat(129)]) {
+    assert.throws(() => registration({ ...fixture, password }), { code: 'invalid_registration' });
+  }
+  const html = readFileSync(new URL('../public/account.html', import.meta.url), 'utf8');
+  assert.match(html, /autocomplete="new-password" required minlength="8" maxlength="128"/);
+});
 test('duplicate registration rolls back redemption and releases connection', async () => {
   const calls = []; let released = false;
   const auth = createAuth({ connect: async () => ({

@@ -70,8 +70,9 @@ test('real PostgreSQL: upgrades, invitations, concurrent redemption, identity an
     const admin = { Authorization: 'Basic ' + Buffer.from('admin:synthetic-password').toString('base64') };
     const generated = await post('/api/v1/admin/invites', { count: 2 }, admin); assert.equal(generated.status, 201);
     const codes = (await generated.json()).items;
-    const registered = await post('/api/v1/auth/register', input(codes[0].code, 'http_user')); assert.equal(registered.status, 201);
-    const logged = await post('/api/v1/auth/login', { login: 'http_user', password }); assert.equal(logged.status, 200);
+    const shortPassword = 'Test-123';
+    const registered = await post('/api/v1/auth/register', { ...input(codes[0].code, 'http_user'), password: shortPassword }); assert.equal(registered.status, 201);
+    const logged = await post('/api/v1/auth/login', { login: 'http_user', password: shortPassword }); assert.equal(logged.status, 200);
     const setCookie = logged.headers.get('set-cookie');
     for (const flag of ['__Host-meshpi_session=', 'HttpOnly', 'Secure', 'SameSite=Strict', 'Path=/']) assert.ok(setCookie.includes(flag));
     const Cookie = setCookie.split(';')[0];
