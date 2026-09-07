@@ -119,8 +119,10 @@ npm start -- --help
 测试使用合成数据，不调用公司服务、不提交真实训练任务。
 
 代码变更使用功能分支，检查后及时提交并推送 GitHub；通过 PR 合并。
-开始新任务前在安全的工作区更新 main：`git pull --ff-only`。
+开始新任务前在安全的工作区更新 main：`git pull --ff-only`；继续已有任务则同步对应功能分支。
 Agent 的具体协作约定见 [AGENTS.md](AGENTS.md)。
+多台电脑独立使用 Codex 时，按[多机协作流程](docs/collaboration.md)同步代码和交接文档，
+从[任务索引](docs/tasks/README.md)接手。这不会同步完整 Codex 对话或 meshpi Transcript。
 
 ## 参考与许可
 
