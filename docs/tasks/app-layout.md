@@ -7,10 +7,10 @@
 ## 当前状态
 - 状态：待交接（实现、部署和验证完成，待 PR 合并）
 - 分支：`codex/app-layout`
-- 基线：`6a69bd3`，依赖 PR #4；PR 待创建。
+- 基线：`6a69bd3`，依赖 PR #4；PR [#5](https://github.com/jerrymomo10/PiMesh/pull/5)。
 - 日期：2026-09-07，Asia/Shanghai
 - 设备：本地 macOS / 测试 ECS
-- 验证版本：本次目录迁移，实际提交见交付回复。
+- 验证版本：`549d721`；之后仅更新交接文档。
 
 ## 已完成
 - 客户端 bin/src/extensions/tests 与锁文件移到 apps/cli，单独的安装说明随包发布。

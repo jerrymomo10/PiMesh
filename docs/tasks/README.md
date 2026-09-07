@@ -12,7 +12,7 @@
 
 | 受保护的团队目录页面 | `codex/team-dashboard` | [#4](https://github.com/jerrymomo10/PiMesh/pull/4)（基于 #3） | [team-dashboard](team-dashboard.md) |
 
-| 客户端与服务端目录分层 | `codex/app-layout` | 待创建（基于 #4） | [app-layout](app-layout.md) |
+| 客户端与服务端目录分层 | `codex/app-layout` | [#5](https://github.com/jerrymomo10/PiMesh/pull/5)（基于 #4） | [app-layout](app-layout.md) |
 
 ## 新任务模板
 
