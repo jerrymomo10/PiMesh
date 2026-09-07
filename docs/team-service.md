@@ -2,11 +2,11 @@
 
 ## 已实现
 
-Node.js + PostgreSQL 服务提供 `/` 团队目录页面，展示用户、团队、成员关系、设备、项目。
+Node.js + PostgreSQL 服务提供 `/admin/directory` 团队目录页面（AUTH_ENABLED 关闭时 `/` 保留旧目录），展示用户、团队、成员关系、设备、项目。
 支持 25 条分页、关键词搜索、计数和手动刷新；空库显示空状态，错误不伪装成零条数据。
 只选取明确的基础字段，不查询模型密钥、令牌、Transcript 或设备本地路径。
 0.2.0 增加可选平台注册/登录及管理员邀请码接口，见 [账号指南](auth.md)。
-团队加入、创建项目等写接口仍未实现；目录查看账号不代表团队成员身份。
+0.3.0 增加团队邀请、成员管理和项目创建，需执行 003，见 [团队指南](teams.md)。目录查看账号不代表团队成员身份。
 
 ## 配置与运行
 
@@ -121,3 +121,32 @@ systemd override 将启动路径指向 current，原 `/opt/pimesh/server` 保留
 
 验证：`python3 apps/server/deploy/tests/test_release.py` 覆盖成功、重启失败、健康失败、迁移变化及非法版本。
 真实 PostgreSQL 集成测试仍需临时数据库，自动部署的离线测试不会冒充该项验证。
+
+## 0.3.0 人工迁移与发布基线
+
+`apps/server/deploy/admin-upgrade.sh` 供 ECS 管理员在审核过的完整提交归档中执行：
+
+```sh
+# REV 设置为已通过 CI 的完整提交 SHA；在 root Bash 终端运行。
+WORK=$(mktemp -d /tmp/pimesh-upgrade.XXXXXX)
+curl -fL --connect-timeout 10 --max-time 120 \
+  "https://codeload.github.com/jerrymomo10/PiMesh/tar.gz/$REV" -o "$WORK/source.tgz"
+tar -xzf "$WORK/source.tgz" -C "$WORK"
+bash "$WORK/PiMesh-$REV/apps/server/deploy/admin-upgrade.sh" "$REV"
+```
+
+脚本仅适用于本文已有 ECS 布局、本机 PostgreSQL、postgres 系统管理员账户，以及
+`/etc/pimesh/server.env` 中完整的 DATABASE_URL 与 PUBLIC_ORIGIN。需要 pg_dump/pg_restore/createdb/dropdb，
+可信证书至少还有 24 小时有效期。不会绕过 TLS 或既有受限发布密钥。
+
+它比较完整依赖锁（忽略应用版本）后复用现有依赖，执行应用检查，再用受限环境传递数据库凭据备份，
+在随机 pimesh_test_restore_ 临时库完整恢复验证，删除临时恢复库，运行迁移，切换新应用，并验证版本、
+数据库就绪、工作台和受保护管理入口。失败不继续；切换后失败会尝试恢复旧应用，新增表不删除。
+备份保留在 root 私有的 /var/tmp/pimesh-backup.* 中，需要管理员妥善保管或迁出，不上传 GitHub。
+
+此脚本需管理员手动执行，不由普通 workflow 提权调用。脚本语法检查不等于生产操作已验证，
+发布状态应记录实际管理员输出。发布后仍需用真实账号完成一次网页和 CLI 验收。
+
+`python3 apps/server/deploy/tests/test_admin_upgrade.py` 使用临时路径和模拟系统服务验证升级编排，
+覆盖备份/恢复/迁移失败不切换应用、切换后失败回退并检查旧应用、回退失败明确报警。
+它不连接生产数据库，不替代实际备份恢复或上线验证。

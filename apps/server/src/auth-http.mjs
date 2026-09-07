@@ -6,7 +6,7 @@ export function basicMatches(header, hash) {
   const supplied = (header || '').startsWith('Basic ') ? Buffer.from(header.slice(6), 'base64').toString('utf8') : '';
   return timingSafeEqual(createHash('sha256').update(supplied).digest(), Buffer.from(hash, 'hex'));
 }
-async function json(req) {
+export async function json(req) {
   if (!/^application\/json(?:;|$)/i.test(req.headers['content-type'] || '')) throw failure(415, 'json_required');
   let size = 0; const chunks = [];
   for await (const chunk of req) {
@@ -21,7 +21,7 @@ async function json(req) {
   } catch { throw failure(400, 'invalid_json'); }
 }
 const sessionCookie = '__Host-meshpi_session';
-function token(req) {
+export function token(req) {
   return (req.headers.cookie || '').split(';').map((part) => part.trim()).find((part) => part.startsWith(`${sessionCookie}=`))?.slice(sessionCookie.length + 1);
 }
 function cookie(value, seconds) { return `${sessionCookie}=${value}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${seconds}`; }

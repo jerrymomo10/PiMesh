@@ -16,7 +16,7 @@ test('package installs into a clean prefix and runs the real Pi recorder offline
     return result;
   }
   const packed = JSON.parse(npm(['pack', '--json', '--ignore-scripts', '--pack-destination', box.base]).stdout)[0];
-  for (const path of ['bin/meshpi.mjs', 'src/transcript.mjs', 'extensions/transcript.mjs', 'npm-shrinkwrap.json']) {
+  for (const path of ['bin/meshpi.mjs', 'src/transcript.mjs', 'src/team.mjs', 'extensions/transcript.mjs', 'npm-shrinkwrap.json']) {
     assert.ok(packed.files.some((file) => file.path === path), path);
   }
   assert.ok(packed.files.every((file) => !/^(tests|node_modules|server|deploy|\.git|\.meshpi)\//.test(file.path)));
@@ -27,9 +27,9 @@ test('package installs into a clean prefix and runs the real Pi recorder offline
   assert.ok(existsSync(executable));
   const direct = spawnSync(executable, ['--version'], { cwd: box.cwd, env: box.env, encoding: 'utf8' });
   assert.equal(direct.status, 0, direct.stderr);
-  assert.match(direct.stdout, /meshpi 0.1.0/);
+  assert.match(direct.stdout, /meshpi 0.2.0/);
   assert.ok(!existsSync(join(prefix, 'bin', 'pi')), 'Do not register an upstream pi command');
-  assert.equal(run(box, ['--version'], executable).stdout.trim(), 'meshpi 0.1.0');
+  assert.equal(run(box, ['--version'], executable).stdout.trim(), 'meshpi 0.2.0');
   const started = run(box, [...inferenceArgs, 'Read the evidence.'], executable);
   assert.equal(started.status, 0, `${started.stderr}\n${started.stdout}`);
   assert.match(started.stdout, /Fixture complete/);

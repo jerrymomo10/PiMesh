@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PiMesh · 工作台</title><link rel="stylesheet" href="/account.css"><script src="/workspace.js" type="module"></script></head>
+<body><main>
+<p class="brand">PiMesh · LOCAL AGENTS. SHARED INTELLIGENCE.</p>
+<nav aria-label="主导航"><a href="/" aria-current="page">工作台</a><a href="/account">我的账号</a><a href="/devices">我的设备</a><a href="/admin/teams">平台管理</a></nav>
+<h1>团队工作台</h1><p>和团队一起管理研究项目。个人对话仍保存在本地。</p>
+<p id="message" role="status" aria-live="polite">正在检查登录状态…</p>
+<section id="login-needed" hidden><h2>登录后查看你的团队</h2><p><a href="/account">登录或注册账号</a></p><p>注册邀请用于创建账号，团队邀请用于加入团队。</p></section>
+<div id="workspace" hidden>
+<div class="forms"><section><h2>我的团队</h2><p>团队由平台管理员创建。需要新团队时，请联系管理员。</p><button id="refresh">刷新团队</button><div id="teams"></div></section>
+<form id="join"><h2>加入团队</h2><label>团队邀请码<input name="code" required minlength="43" maxlength="43" autocomplete="off" spellcheck="false"></label><small>请向团队负责人获取团队邀请码，不是注册邀请码。</small><button>加入团队</button></form></div>
+<section id="detail" hidden><h2 id="team-name"></h2><p id="role"></p>
+<h3>成员</h3><div id="members"></div><h3>项目</h3><div id="projects"></div>
+<div id="owner-tools" hidden><div class="forms">
+<form id="project"><h3>创建项目</h3><label>项目名称<input name="name" required maxlength="100"></label><label>项目标识<input name="slug" required minlength="3" maxlength="48" pattern="[a-z][a-z0-9\-]{2,47}" placeholder="research-demo"></label><button>创建项目</button></form>
+<form id="invite"><h3>邀请团队成员</h3><label>有效天数<input name="days" type="number" min="1" max="30" value="7" required></label><button>生成团队邀请码</button><p>每码限一人使用。完整码仅本次显示，请及时复制保存。</p></form></div>
+<div id="generated"></div><h3>最近 100 条团队邀请</h3><div id="invites"></div>
+</div></section></div>
+</main></body></html>

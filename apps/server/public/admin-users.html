@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PiMesh · 用户管理</title><link rel="stylesheet" href="/account.css"><script src="/admin/users.js" type="module"></script></head>
+<body><main><p class="brand">PiMesh · 平台管理</p><nav aria-label="管理导航"><a href="/">用户工作台</a><a href="/admin/users" aria-current="page">用户管理</a><a href="/admin/teams">团队管理</a><a href="/admin/invites">注册邀请</a><a href="/admin/directory">全站目录（查看账号）</a></nav>
+<h1>用户管理</h1><p>新用户通过注册邀请创建账号。停用账号或重设密码会撤销全部网页和 CLI 会话。</p><p id="message" role="status" aria-live="polite"></p>
+<section><h2>平台用户</h2><button id="refresh">刷新</button><div id="users"></div></section>
+<section id="selected" hidden><h2 id="selected-name"></h2><form id="reset"><label>新密码<input name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></label><button>重设密码并撤销会话</button></form><h3>用户设备</h3><div id="devices"></div></section>
+</main></body></html>

@@ -18,3 +18,12 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .invite { padding: 16px 0; border-bottom: 1px solid #cad5cc; overflow-wrap: anywhere; }
 [hidden] { display: none !important; }
 @media (max-width: 640px) { .forms { grid-template-columns: 1fr; } main { margin: 12px auto; padding: 16px; } }
+
+nav { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 20px; }
+a { color: #24563e; text-underline-offset: 4px; }
+a[aria-current="page"] { font-weight: 700; }
+a:focus-visible { outline: 3px solid #ad792d; outline-offset: 3px; }
+section, #detail { margin-bottom: 24px; }
+#detail { margin-top: 24px; }
+h2, h3, strong { overflow-wrap: anywhere; }
+.invite button { margin-left: 12px; }
