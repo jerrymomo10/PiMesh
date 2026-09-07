@@ -2,7 +2,7 @@
 
 **Local agents. Shared intelligence.**
 
-PiMesh 面向算法团队：每位同学在自己的 Mac 上通过 **`meshpi`** 使用 Pi，
+PiMesh 面向算法团队：每位同学在自己的电脑或开发环境中通过 **`meshpi`** 使用 Pi，
 可以参与多个项目，同一个项目也可以由多人负责。目标是把项目进展、实验记录、
 踩坑经验和公共工具沉淀为团队资产，让协作、全局管理和组周报更轻松。
 
@@ -22,7 +22,9 @@ PiMesh 面向算法团队：每位同学在自己的 Mac 上通过 **`meshpi`** 
 
 ## 安装
 
-需要 macOS、Git、Node.js **22.19.0 或以上**及 npm。首次安装依赖需要联网。
+面向 macOS、Linux、Windows 等多端开发环境，需要 Git、Node.js **22.19.0 或以上**及 npm。
+当前 CI 已覆盖 macOS 和 Linux；Windows 尚未验证，建议先通过 WSL 使用 Linux 环境。
+以下命令使用 POSIX shell（macOS、Linux 或 WSL）；首次安装依赖需要联网。
 
 ```sh
 git clone https://github.com/jerrymomo10/PiMesh.git
@@ -75,10 +77,15 @@ Pi 的 `--provider`、`--model`、`--extension` 等参数可继续使用。
 
 ## Transcript 保存
 
-默认存储根目录为 `~/.local/state/meshpi/`，可通过绝对路径 `MESHPI_HOME` 改变。
+默认存储根目录为用户主目录下的 `~/.meshpi/`，可通过绝对路径 `MESHPI_HOME` 改变。
+Windows 原生环境对应 `%USERPROFILE%\.meshpi\`（尚未验证）。
+
+升级后不会自动读取、迁移或删除旧的 `~/.local/state/meshpi/`。旧凭据和会话仍保留在原处；
+如需继续使用原有记录，在启动前设置 `export MESHPI_HOME="$HOME/.local/state/meshpi"`。
+使用新默认目录时需要重新 `/login`，`--continue`／`--resume` 仅查找新目录中的会话。
 
 ```text
-meshpi/
+.meshpi/
 ├── agent/                         配置、认证等本地状态
 └── workspaces/<本地目录标识>/
     ├── sessions/                  Pi 原生 JSONL 会话，可继续／恢复
