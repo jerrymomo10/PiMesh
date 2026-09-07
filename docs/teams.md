@@ -1,6 +1,6 @@
 # 团队工作台与平台管理
 
-服务端 0.3.0；客户端未增加团队登录，不自动上传 Transcript。生产需先完成 003 迁移。
+服务端 0.3.0；CLI 0.2.0 支持团队登录与设备注册，不自动上传 Transcript。生产需先完成 003 与 004 迁移。
 
 ## 统一入口
 
@@ -25,8 +25,8 @@ AUTH_ENABLED 关闭时首页保留旧目录，不开放团队 API。页面壳不
 5. 团队负责人可以移除普通成员，成员下一次请求即失去访问权限；已查看的数据无法从用户设备收回。
 
 普通用户不能创建团队；平台管理员的 Basic 凭据不自动授予任何团队成员身份。
-不支持移除负责人、转让负责人、修改角色、删除团队或删除项目。
-团队创建时指定的负责人记录为 teams.created_by，平台管理员代表该用户创建。
+负责人不能直接移除负责人；平台管理员可更换负责人（原负责人变为成员）、改名与归档/恢复团队。负责人可改名与归档/恢复项目。不提供硬删除。
+团队创建时指定的负责人记录为 teams.created_by，平台管理员代表该用户创建；负责人变更时同步更新该字段和项目 owner_id。
 成员列表仅暴露用户 ID、用户名、显示名、角色和加入时间，不返回邮箱、密码或会话。
 项目以团队内唯一 slug 标识，负责人为创建项目的团队负责人；本阶段只有项目目录，没有研究记录读写。
 
@@ -63,6 +63,7 @@ AUTH_ENABLED 关闭时首页保留旧目录，不开放团队 API。页面壳不
 ## 迁移与验证
 
 运行 `npm run migrate --prefix apps/server` 执行 003-team-invites（新增表和索引，保留旧表与账号）。
+004-device-sessions 新增设备会话与团队归档字段，启用认证时启动校验要求迁移到 004。
 生产已有注册用户，不再假定空库；管理员备份后按部署流程人工迁移、验证并切换新基线。
 自动发布仍拒绝 migrations 变化。代码 PR 验证通过不代表生产已经升级，不能只复制迁移清单绕过检查。
 回退旧应用可保留 003 的表/索引；现有注册会话与管理员/目录凭据保持不变。
@@ -70,3 +71,15 @@ AUTH_ENABLED 关闭时首页保留旧目录，不开放团队 API。页面壳不
 `npm run check --prefix apps/server`、`npm test --prefix apps/server` 运行离线测试。
 真实 PostgreSQL 测试由 TEST_DATABASE_URL 启用，只允许 pimesh_test_ 前缀临时库，使用随机 schema 与合成数据。
 覆盖管理员创建、失败回滚、跨团队拒绝、成员/负责人权限、并发核销、过期撤销、移除与重新加入、Cookie 撤销。
+
+## 用户、设备与 CLI
+
+用户管理 `/admin/users`；个人设备与密码 `/devices`。管理员可启停用户、重设密码、撤销设备。
+CLI 登录 `/api/v1/cli/login` 验证用户名/邮箱与密码，注册设备并返回 30 天 Bearer 令牌，数据库仅保存摘要。
+`/api/v1/cli/me` 检查身份，POST `/api/v1/cli/logout` 撤销本设备。团队 API 接受 Cookie 或设备 Bearer，权限相同。
+GET `/api/v1/devices` 分页列自己的设备，POST `/api/v1/devices/:id/revoke` 撤销；不允许访问他人设备。
+POST `/api/v1/account/password` 要求 current_password 与 password，修改后撤销全部会话。
+管理员 GET `/api/v1/admin/users`，POST `/:id/status`（status 为 active/disabled）、`/:id/password`（password），
+GET `/:id/devices`，POST `/:id/devices/:deviceId/revoke`。不返回密码摘要或设备令牌。
+POST `/api/v1/admin/teams/:id` 修改 name、owner 或 archived；POST `/api/v1/teams/:id/projects/:projectId` 修改 name 或 archived。
+使用及交付验收见 [同学使用指南](team-client.md)。

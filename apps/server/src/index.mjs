@@ -27,8 +27,8 @@ if (authEnabled) {
   if (!tlsOptions || !/^[a-f0-9]{64}$/.test(adminHash || '') || !publicOrigin) throw new Error('Auth requires TLS, PUBLIC_ORIGIN and INVITE_ADMIN_HASH');
   const parsed = new URL(publicOrigin);
   if (parsed.protocol !== 'https:' || parsed.origin !== publicOrigin) throw new Error('PUBLIC_ORIGIN must be an HTTPS origin without a trailing slash');
-  const schema = await pool.query("SELECT 1 FROM schema_migrations WHERE version='002-invite-auth'");
-  if (!schema.rows.length) throw new Error('Apply 002-invite-auth before enabling auth');
+  const schema = await pool.query("SELECT version FROM schema_migrations WHERE version IN ('002-invite-auth','003-team-invites','004-device-sessions')");
+  if (schema.rows.length !== 3) throw new Error('Apply migrations through 004-device-sessions before enabling auth');
 }
 const server = createApp(pool, { dashboardEnabled, accessHash, tlsOptions, authEnabled, publicOrigin, adminHash });
 server.requestTimeout = 15000;

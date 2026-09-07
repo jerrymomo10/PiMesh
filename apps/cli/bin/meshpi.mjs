@@ -14,6 +14,7 @@ Usage: meshpi [Pi options] [prompt]
        meshpi setup       Create local storage (no credentials required)
        meshpi paths       Show storage paths for the current workspace
        meshpi doctor      Check Node, pinned Pi, and writable storage
+       meshpi team --help  Team login, devices, teams and project binding
 
 meshpi --continue        Continue this workspace's last session
 meshpi --resume          Select a previous session
@@ -34,7 +35,10 @@ try {
   } else {
     process.umask(process.umask() | 0o077);
     const paths = resolvePaths();
-    if (args.length === 1 && args[0] === 'paths') {
+    if (args[0] === 'team') {
+      const { runTeam } = await import('../src/team.mjs');
+      await runTeam(args.slice(1), paths);
+    } else if (args.length === 1 && args[0] === 'paths') {
       process.stdout.write(`${JSON.stringify(paths, null, 2)}\n`);
     } else if (args.length === 1 && args[0] === 'setup') {
       preparePaths(paths);

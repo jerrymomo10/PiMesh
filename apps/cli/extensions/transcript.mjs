@@ -1,5 +1,6 @@
 import { preparePaths, resolvePaths } from '../src/paths.mjs';
 import { createTranscript } from '../src/transcript.mjs';
+import { readBinding } from '../src/team.mjs';
 
 export const transcriptEvents = [
   'input', 'before_agent_start', 'agent_start', 'agent_end', 'agent_settled',
@@ -20,6 +21,7 @@ export default function transcriptExtension(pi) {
         writer = createTranscript(paths.transcriptDir, {
           workspace: paths.workspace, workspaceId: paths.workspaceId,
           pid: process.pid,
+          teamProject: readBinding(paths),
         });
       }
       const context = {

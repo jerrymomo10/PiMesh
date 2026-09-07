@@ -70,10 +70,18 @@ export function createAuth(pool) {
       const user = result.rows[0];
       if (!await verifyPassword(input.password, user?.password_hash) || user?.status !== 'active') throw failure(401, 'invalid_credentials');
       const token = secret();
-      await pool.query('DELETE FROM auth_sessions WHERE expires_at<=now()');
-      await pool.query(`INSERT INTO auth_sessions(token_hash,user_id,expires_at)
-        VALUES ($1,$2,now()+interval '7 days')`, [digest(token), user.user_id]);
-      return { token, user: publicUser(user) };
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const fresh = (await client.query('SELECT status,password_hash FROM users WHERE user_id=$1 FOR UPDATE', [user.user_id])).rows[0];
+        if (!fresh || fresh.status !== 'active' || fresh.password_hash !== user.password_hash) throw failure(401, 'invalid_credentials');
+        await client.query('DELETE FROM auth_sessions WHERE expires_at<=now()');
+        await client.query(`INSERT INTO auth_sessions(token_hash,user_id,expires_at)
+          VALUES ($1,$2,now()+interval '7 days')`, [digest(token), user.user_id]);
+        await client.query('COMMIT');
+        return { token, user: publicUser(user) };
+      } catch (error) { await client.query('ROLLBACK').catch(() => {}); throw error; }
+      finally { client.release(); }
     },
     async me(token) {
       if (!/^[A-Za-z0-9_-]{43}$/.test(token || '')) throw failure(401, 'authentication_required');

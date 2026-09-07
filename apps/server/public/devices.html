@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PiMesh · 我的设备</title><link rel="stylesheet" href="/account.css"><script src="/devices.js" type="module"></script></head>
+<body><main><p class="brand">PiMesh · 我的设备</p><nav aria-label="主导航"><a href="/">工作台</a><a href="/account">我的账号</a><a href="/devices" aria-current="page">我的设备</a></nav>
+<h1>我的设备</h1><p>运行 meshpi team login 注册设备。每个账号最多 20 台可用设备，撤销后该设备需要重新登录注册。</p>
+<p id="message" role="status" aria-live="polite"></p><section><button id="refresh">刷新设备</button><div id="devices"></div></section>
+<form id="password"><h2>修改账号密码</h2><label>当前密码<input name="current_password" type="password" required maxlength="128" autocomplete="current-password"></label><label>新密码<input name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></label><button>修改密码</button><p>修改后所有网页与 CLI 登录将失效，需要重新登录。</p></form>
+</main></body></html>

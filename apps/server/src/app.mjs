@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { createDirectory } from './directory.mjs';
 import { createAuthHttp, basicMatches } from './auth-http.mjs';
 import { createTeamsHttp } from './teams-http.mjs';
+import { createManagementHttp } from './management-http.mjs';
 
 const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
@@ -18,6 +19,10 @@ const assets = new Map([
 ].map(([path, [file, type]]) => [path, { type, body: readFileSync(new URL(`../public/${file}`, import.meta.url)) }]));
 
 const accountAssets = new Map([
+  ['/devices', ['devices.html', 'text/html; charset=utf-8']],
+  ['/devices.js', ['devices.js', 'text/javascript; charset=utf-8']],
+  ['/admin/users', ['admin-users.html', 'text/html; charset=utf-8']],
+  ['/admin/users.js', ['admin-users.js', 'text/javascript; charset=utf-8']],
   ['/', ['workspace.html', 'text/html; charset=utf-8']],
   ['/workspace.js', ['workspace.js', 'text/javascript; charset=utf-8']],
   ['/team-api.js', ['team-api.js', 'text/javascript; charset=utf-8']],
@@ -34,6 +39,7 @@ export function createApp(pool, { dashboardEnabled = false, accessHash, tlsOptio
   const directory = createDirectory(pool);
   const auth = authEnabled ? createAuthHttp(pool, { origin: publicOrigin, adminHash, limiter: authLimiter }) : null;
   const teams = authEnabled ? createTeamsHttp(pool, { origin: publicOrigin, adminHash }) : null;
+  const management = authEnabled ? createManagementHttp(pool, { origin: publicOrigin, adminHash }) : null;
   const handler = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Cache-Control', 'no-store');
@@ -50,13 +56,14 @@ export function createApp(pool, { dashboardEnabled = false, accessHash, tlsOptio
     res.setHeader('Referrer-Policy', 'no-referrer');
     if (auth && await auth(req, res, url.pathname)) return;
     if (teams && await teams(req, res, url)) return;
+    if (management && await management(req, res, url)) return;
     if (req.method !== 'GET') return send(405, { error: 'method_not_allowed' });
     if (auth && ['/workspace', '/directory', '/admin', '/admin/'].includes(url.pathname)) {
       const destination = url.pathname === '/workspace' ? '/' : url.pathname === '/directory' ? '/admin/directory' : '/admin/teams';
       res.writeHead(302, { Location: destination }); return res.end();
     }
     if (auth && accountAssets.has(url.pathname)) {
-      if (['/admin/invites', '/invites.js', '/admin/teams', '/admin/teams.js'].includes(url.pathname) && !basicMatches(req.headers.authorization, adminHash)) {
+      if (['/admin/invites', '/invites.js', '/admin/teams', '/admin/teams.js', '/admin/users', '/admin/users.js'].includes(url.pathname) && !basicMatches(req.headers.authorization, adminHash)) {
         res.setHeader('WWW-Authenticate', 'Basic realm="PiMesh invitations", charset="UTF-8"');
         return send(401, { error: 'admin_authentication_required' });
       }

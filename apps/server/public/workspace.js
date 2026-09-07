@@ -9,13 +9,14 @@ async function teams(page = 1) {
   for (const team of data.items) {
     const row = element('div', '', $('teams')); row.className = 'invite';
     action(`${team.name} · ${team.role === 'owner' ? '负责人' : '成员'}`, () => openTeam(team.team_id), row);
+    element('small', `团队 ID：${team.team_id}`, row);
   }
   pager($('teams'), page, data.has_more, teams); $('message').textContent = '团队列表已更新。';
 }
 async function list(section, page = 1) {
   const team = selected;
   if (!team) return;
-  const data = await api(`/api/v1/teams/${team.team_id}/${section}?page=${page}`);
+  const data = await api(`/api/v1/teams/${team.team_id}/${section}?page=${page}${section === 'projects' && team.role === 'owner' ? '&include_archived=1' : ''}`);
   if (selected !== team) return;
   const box = $(section); box.replaceChildren();
   if (!data.items.length) element('p', section === 'members' ? '暂无成员。' : '暂无项目。', box);
@@ -28,7 +29,20 @@ async function list(section, page = 1) {
         await api(`/api/v1/teams/${team.team_id}/members/${encodeURIComponent(item.user_id)}/remove`, {});
         await list('members'); $('message').textContent = '成员已移除。';
       }, row);
-    } else { element('strong', item.name, row); element('small', item.slug, row); }
+    } else {
+      element('strong', item.name, row); element('small', item.slug, row);
+      element('small', `项目 ID：${item.project_id}`, row);
+      if (item.archived_at) element('p', '已归档', row);
+      if (team.role === 'owner') {
+        action('更改名称', async () => {
+          const name = prompt('项目新名称', item.name); if (name === null) return;
+          await api(`/api/v1/teams/${team.team_id}/projects/${item.project_id}`, { name }); await list('projects'); $('message').textContent = '项目已更新。';
+        }, row);
+        action(item.archived_at ? '恢复项目' : '归档项目', async () => {
+          await api(`/api/v1/teams/${team.team_id}/projects/${item.project_id}`, { archived: !item.archived_at }); await list('projects'); $('message').textContent = '项目已更新。';
+        }, row);
+      }
+    }
   }
   pager(box, page, data.has_more, async (next) => { await list(section, next); $('message').textContent = '列表已更新。'; });
 }

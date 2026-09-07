@@ -28,10 +28,11 @@ export function createTeams(pool) {
   }
   // Serialize team operations, including permission checks and invite redemption.
   // Removal cannot race a previously checked owner/member operation.
-  async function lockTeam(client, id) {
+  async function lockTeam(client, id, allowArchived = false) {
     if (!uuid.test(id || '')) throw failure(404, 'team_not_found');
     const { rows } = await client.query('SELECT * FROM teams WHERE team_id=$1 FOR UPDATE', [id]);
     if (!rows.length) throw failure(404, 'team_not_found');
+    if (rows[0].archived_at && !allowArchived) throw failure(404, 'team_not_found');
     return rows[0];
   }
   async function withTeam(user, id, owner, work) {
@@ -63,9 +64,34 @@ export function createTeams(pool) {
         JOIN users u ON u.user_id=t.created_by ORDER BY t.created_at DESC,t.team_id LIMIT 26 OFFSET $1`, [pageOffset(page)]);
       return paged(result.rows);
     },
+    async update(id, input) {
+      if (!('name' in input) && !('owner' in input) && !('archived' in input)) throw failure(400, 'invalid_update');
+      const teamName = 'name' in input ? name(input.name) : null;
+      if ('archived' in input && typeof input.archived !== 'boolean') throw failure(400, 'invalid_update');
+      return transaction(async (client) => {
+        await lockTeam(client, id, true);
+        if ('owner' in input) {
+          if (typeof input.owner !== 'string' || !/^[a-z][a-z0-9_-]{2,31}$/i.test(input.owner)) throw failure(400, 'invalid_owner');
+          const found = (await client.query(`SELECT user_id FROM users WHERE lower(username)=$1 AND status='active' AND password_hash IS NOT NULL FOR SHARE`, [input.owner.toLowerCase()])).rows[0];
+          if (!found) throw failure(400, 'invalid_owner');
+          await client.query(`UPDATE memberships SET role='member' WHERE team_id=$1 AND role='owner'`, [id]);
+          await client.query(`INSERT INTO memberships(team_id,user_id,role) VALUES ($1,$2,'owner')
+            ON CONFLICT (team_id,user_id) DO UPDATE SET role='owner',status='active'`, [id, found.user_id]);
+          await client.query('UPDATE teams SET created_by=$2 WHERE team_id=$1', [id, found.user_id]);
+          await client.query('UPDATE projects SET owner_id=$2 WHERE team_id=$1', [id, found.user_id]);
+          await client.query('UPDATE team_invites SET revoked_at=now() WHERE team_id=$1 AND used_at IS NULL AND revoked_at IS NULL', [id]);
+        }
+        if (teamName !== null) await client.query('UPDATE teams SET name=$2 WHERE team_id=$1', [id, teamName]);
+        if ('archived' in input) {
+          await client.query('UPDATE teams SET archived_at=CASE WHEN $2 THEN now() ELSE NULL END WHERE team_id=$1', [id, input.archived]);
+          if (input.archived) await client.query('UPDATE team_invites SET revoked_at=now() WHERE team_id=$1 AND used_at IS NULL AND revoked_at IS NULL', [id]);
+        }
+        return { ok: true };
+      });
+    },
     async list(user, page) {
       const result = await pool.query(`SELECT t.*,m.role FROM teams t JOIN memberships m USING(team_id)
-        WHERE m.user_id=$1 AND m.status='active' ORDER BY t.created_at DESC,t.team_id LIMIT 26 OFFSET $2`, [user, pageOffset(page)]);
+        WHERE m.user_id=$1 AND m.status='active' AND t.archived_at IS NULL ORDER BY t.created_at DESC,t.team_id LIMIT 26 OFFSET $2`, [user, pageOffset(page)]);
       return paged(result.rows);
     },
     async detail(user, id) { return withTeam(user, id, false, async (_, team) => team); },
@@ -75,16 +101,36 @@ export function createTeams(pool) {
         FROM memberships m JOIN users u USING(user_id) WHERE m.team_id=$1 AND m.status='active'
         ORDER BY m.joined_at,m.user_id LIMIT 26 OFFSET $2`, [id, offset])).rows));
     },
-    async projects(user, id, page) {
+    async projects(user, id, page, archived = false) {
       const offset = pageOffset(page);
-      return withTeam(user, id, false, async (client) => paged((await client.query(`SELECT project_id,name,slug,owner_id,created_at
-        FROM projects WHERE team_id=$1 AND archived_at IS NULL ORDER BY created_at DESC,project_id LIMIT 26 OFFSET $2`, [id, offset])).rows));
+      return withTeam(user, id, false, async (client) => paged((await client.query(`SELECT project_id,name,slug,owner_id,created_at,archived_at
+        FROM projects WHERE team_id=$1 AND (archived_at IS NULL OR $3::boolean) ORDER BY created_at DESC,project_id LIMIT 26 OFFSET $2`, [id, offset, archived])).rows));
+    },
+    async project(user, id, project) {
+      if (!uuid.test(project || '')) throw failure(404, 'project_not_found');
+      return withTeam(user, id, false, async (client) => {
+        const { rows } = await client.query('SELECT * FROM projects WHERE team_id=$1 AND project_id=$2 AND archived_at IS NULL', [id, project]);
+        if (!rows.length) throw failure(404, 'project_not_found');
+        return rows[0];
+      });
     },
     async createProject(user, id, input) {
       const projectName = name(input.name);
       if (typeof input.slug !== 'string' || !/^[a-z][a-z0-9-]{2,47}$/.test(input.slug)) throw failure(400, 'invalid_slug');
       return withTeam(user, id, true, async (client) => (await client.query(`INSERT INTO projects(project_id,team_id,name,slug,owner_id)
         VALUES ($1,$2,$3,$4,$5) RETURNING project_id,team_id,name,slug,owner_id,created_at`, [randomUUID(), id, projectName, input.slug, user])).rows[0]);
+    },
+    async updateProject(user, id, project, input) {
+      if (!uuid.test(project || '') || (!('name' in input) && !('archived' in input))) throw failure(400, 'invalid_update');
+      const projectName = 'name' in input ? name(input.name) : null;
+      if ('archived' in input && typeof input.archived !== 'boolean') throw failure(400, 'invalid_update');
+      return withTeam(user, id, true, async (client) => {
+        const result = await client.query(`UPDATE projects SET name=COALESCE($3,name),
+          archived_at=CASE WHEN $4::boolean IS NULL THEN archived_at WHEN $4 THEN now() ELSE NULL END
+          WHERE team_id=$1 AND project_id=$2 RETURNING project_id`, [id, project, projectName, input.archived ?? null]);
+        if (!result.rows.length) throw failure(404, 'project_not_found');
+        return { ok: true };
+      });
     },
     async remove(user, id, target) {
       if (typeof target !== 'string' || target.length > 128) throw failure(400, 'invalid_member');
