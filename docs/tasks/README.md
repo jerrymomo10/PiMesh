@@ -16,7 +16,7 @@
 
 | README 品牌与项目首页 | `codex/readme-branding` | [#6](https://github.com/jerrymomo10/PiMesh/pull/6) | [readme-branding](readme-branding.md) |
 
-| 服务端自动部署 | `codex/server-deploy` | 待创建 | [server-deploy](server-deploy.md) |
+| 服务端自动部署 | `codex/server-deploy` | [#7](https://github.com/jerrymomo10/PiMesh/pull/7) | [server-deploy](server-deploy.md) |
 
 ## 新任务模板
 

@@ -3,6 +3,7 @@
 ## 目标与状态
 - 自动部署 ECS 团队服务，测试通过才发布；失败回滚应用，不自动迁移数据库。
 - 分支：codex/server-deploy；状态：待交接，待 PR 合并。
+- PR：[#7](https://github.com/jerrymomo10/PiMesh/pull/7)；验证代码：147965b（此后仅更新任务记录）。
 - 基线：e057f0c；更新时间：2026-09-07 Asia/Shanghai。
 
 ## 已完成
