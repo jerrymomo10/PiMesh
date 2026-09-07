@@ -20,3 +20,5 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run check
       - run: npm test
+      - run: npm ci --prefix server --ignore-scripts
+      - run: npm test --prefix server

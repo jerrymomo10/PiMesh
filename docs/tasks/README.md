@@ -8,6 +8,8 @@
 
 | 默认存储目录与多端文档 | `codex/default-meshpi-home` | [#2](https://github.com/jerrymomo10/PiMesh/pull/2) | [default-meshpi-home](default-meshpi-home.md) |
 
+| 团队服务与 PostgreSQL 测试部署 | `codex/team-service-bootstrap` | 待创建 | [team-service-bootstrap](team-service-bootstrap.md) |
+
 ## 新任务模板
 
 复制以下内容到 `<task-id>.md`，填写实际信息，并在上表添加入口。

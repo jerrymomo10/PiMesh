@@ -16,7 +16,7 @@ PiMesh 面向算法团队：每位同学在自己的电脑或开发环境中通�
 - 持久保存原生 Session 与追加式 Transcript 事件；不以摘要替换原始记录。
 - 无真实模型、无 API 密钥的自动测试，以及打包安装测试。
 
-尚未实现：团队服务、跨机器同步、成员身份、实验平台连接器、Memory 检索与分层、
+尚未实现：团队业务 API、跨机器同步、成员身份、实验平台连接器、Memory 检索与分层、
 管理看板及周报生成。**当前版本不会自动把 Transcript 上传给团队。**
 已确定的产品方向与待定问题见 [设计边界](docs/decisions.md)。
 
@@ -130,6 +130,12 @@ npm start -- --help
 Agent 的具体协作约定见 [AGENTS.md](AGENTS.md)。
 多台电脑独立使用 Codex 时，按[多机协作流程](docs/collaboration.md)同步代码和交接文档，
 从[任务索引](docs/tasks/README.md)接手。这不会同步完整 Codex 对话或 meshpi Transcript。
+
+## 团队服务基础
+
+`server/` 提供独立 Node.js 服务与 PostgreSQL 连接，当前只有存活和数据库就绪检查，
+尚未实现登录、成员、设备或项目管理 API。部署与访问方式见 [服务部署](docs/team-service.md)。
+服务地址与数据库连接通过配置提供，客户端不需要数据库密码。
 
 ## 参考与许可
 
