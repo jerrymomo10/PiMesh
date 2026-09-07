@@ -1,0 +1,91 @@
+# 客户端安装与使用
+
+[返回项目首页](../README.md) · [Transcript 契约](transcripts.md)
+
+## 安装
+
+面向 macOS、Linux、Windows 等多端开发环境，需要 Git、Node.js **22.19.0 或以上**及 npm。
+当前 CI 已覆盖 macOS 和 Linux；Windows 尚未验证，建议先通过 WSL 使用 Linux 环境。
+以下命令使用 POSIX shell（macOS、Linux 或 WSL）；首次安装依赖需要联网。
+
+```sh
+git clone https://github.com/jerrymomo10/PiMesh.git
+cd PiMesh
+npm ci --prefix apps/cli --ignore-scripts
+npm run check --prefix apps/cli
+npm test --prefix apps/cli
+npm install --global --install-links --ignore-scripts ./apps/cli
+meshpi setup
+meshpi doctor
+```
+
+如果 npm 全局目录不可写，可安装到用户目录：
+
+```sh
+npm install --global --install-links --ignore-scripts --prefix "$HOME/.local" ./apps/cli
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+将上述 PATH 配置加入自己的 `~/.zshrc` 后，新终端也可使用 `meshpi`。
+不需要 `sudo`。此包尚未发布到 npm registry，请从源码安装。
+安装命令仅注册 `meshpi`；不会覆盖机器上已有的 `pi` 命令。
+更新时在安全的工作区拉取新版本，重新执行上述客户端依赖安装、检查、测试和安装命令。
+如果使用功能分支，请先切换到对应分支；尚未合并的代码不会出现在 main 中。
+
+## 使用
+
+在实际研究项目目录中启动：
+
+```sh
+cd /path/to/research-project
+meshpi
+```
+
+首次使用，在交互界面输入 `/login` 配置模型供应商，再用 `/model` 选择模型。
+也可使用 Pi 支持的供应商环境变量。真实模型调用采用所选供应商的认证和计费。
+meshpi 使用独立的 Agent 配置目录，不自动复制已有 Pi 的凭据。
+
+```sh
+meshpi --continue                 # 继续当前目录的最近会话
+meshpi --resume                   # 选择历史会话
+meshpi --print "分析当前项目结构"  # 非交互执行，同样保存 Transcript
+meshpi paths                      # 查看当前目录的存储路径
+meshpi --pi-help                  # Pi 原生参数说明（其中名称显示为 pi）
+```
+
+Pi 的 `--provider`、`--model`、`--extension` 等参数可继续使用。
+`--no-session` 和 `--session-dir` 由 meshpi 禁用／管理，避免误关闭记录或打乱目录。
+`meshpi` 复用 Pi 的本地工具执行能力，当前未实现 Research Pi 的额外项目沙箱。
+
+## Transcript 保存
+
+默认存储根目录为用户主目录下的 `~/.meshpi/`，可通过绝对路径 `MESHPI_HOME` 改变。
+Windows 原生环境对应 `%USERPROFILE%\.meshpi\`（尚未验证）。
+
+升级后不会自动读取、迁移或删除旧的 `~/.local/state/meshpi/`。旧凭据和会话仍保留在原处；
+如需继续使用原有记录，在启动前设置 `export MESHPI_HOME="$HOME/.local/state/meshpi"`。
+使用新默认目录时需要重新 `/login`，`--continue`／`--resume` 仅查找新目录中的会话。
+
+```text
+.meshpi/
+├── agent/                         配置、认证等本地状态
+└── workspaces/<本地目录标识>/
+    ├── sessions/                  Pi 原生 JSONL 会话，可继续／恢复
+    └── transcripts/               追加式 JSONL 事件记录
+```
+
+保存内容包括用户消息、助手消息、Pi 暴露的流式增量、工具调用与返回结果，
+以及会话、分支和压缩等事件与会话快照。不会主动缩短消息、删掉旧轮次或自动清理历史。
+每条事件写入后同步落盘；不同运行实例使用独立文件，避免互相覆盖。
+上下文压缩改变模型下一轮看到的内容，不删除此前已保存的 Transcript。
+
+这里的“完整”指 **Pi 已交付给客户端的会话内容和事件**，不是终端录像或供应商网络抓包。
+工具本身已截断的底层日志、模型未返回的内容、强杀前尚未交付的事件，无法凭空恢复。
+流式事件保存增量，完整终态消息另行保存；不重复保存每个 token 对应的增长快照。
+详细格式、故障边界和验证方式见 [Transcript 说明](transcripts.md)。
+
+Transcript 可能包含项目代码、工具输出及用户输入的敏感信息。原文不做破坏性脱敏；
+存储目录默认仅当前用户访问，文件默认 `0600`，禁止提交到公开 Git 仓库。
+当前提供本地持久保存，不提供远端备份或团队访问。共享前的权限和脱敏规则仍待设计。
+默认关闭 Pi telemetry；可通过供应商配置执行正常模型请求。
+
