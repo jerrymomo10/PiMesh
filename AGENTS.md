@@ -7,11 +7,12 @@
 ## 项目定位与当前阶段
 
 PiMesh 是一个基于 Pi、面向算法研究团队的开源协作 harness。
-团队成员在各自的 Mac 上开展本地开发和研究，共享团队知识、实验进展、
+团队成员在各自的电脑或开发环境中开展本地开发和研究，共享团队知识、实验进展、
 实验记录和持久化团队记忆。产品方向以 `README.md` 为准。
 
 当前已实现本地 `meshpi` CLI：Node.js ESM、锁定 Pi Core 0.84.2、原生 Session
-和追加式 Transcript 保存。具体依赖见 `package.json`，产品边界见 `docs/decisions.md`。
+和追加式 Transcript 保存，默认存储于用户主目录的 `~/.meshpi/`，支持 `MESHPI_HOME` 覆盖。
+当前 CI 覆盖 macOS/Linux，Windows 原生环境尚未验证。具体依赖见 `package.json`，产品边界见 `docs/decisions.md`。
 团队服务、Memory 分层与共享策略、公司工具接入仍待设计，不把讨论草案视为已定要求。
 
 - 不将规划中的能力描述为已实现功能。

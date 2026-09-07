@@ -5,7 +5,7 @@ import { isAbsolute, join } from 'node:path';
 
 export function resolvePaths(cwd = process.cwd(), env = process.env) {
   const workspace = realpathSync(cwd);
-  const stateDir = env.MESHPI_HOME || join(homedir(), '.local', 'state', 'meshpi');
+  const stateDir = env.MESHPI_HOME || join(homedir(), '.meshpi');
   if (!isAbsolute(stateDir)) throw new Error('MESHPI_HOME must be an absolute path.');
   // Local workspace identity only. Team project identity is a separate future contract.
   const workspaceId = createHash('sha256').update(workspace).digest('hex').slice(0, 24);

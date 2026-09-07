@@ -6,6 +6,8 @@
 | --- | --- | --- | --- |
 | 本地 meshpi 客户端与完整 Transcript 保存 | `feat/meshpi-launcher` | [#1](https://github.com/jerrymomo10/PiMesh/pull/1) | [meshpi-launcher](meshpi-launcher.md) |
 
+| 默认存储目录与多端文档 | `codex/default-meshpi-home` | 待创建 | [default-meshpi-home](default-meshpi-home.md) |
+
 ## 新任务模板
 
 复制以下内容到 `<task-id>.md`，填写实际信息，并在上表添加入口。
