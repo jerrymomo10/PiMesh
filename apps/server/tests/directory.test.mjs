@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { createApp } from '../app.mjs';
-import { createDirectory } from '../directory.mjs';
+import { createApp } from '../src/app.mjs';
+import { createDirectory } from '../src/directory.mjs';
 
 test('directory uses bound search values and releases connections on failure', async () => {
   const calls = [];

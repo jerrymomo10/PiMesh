@@ -19,7 +19,7 @@ test('package installs into a clean prefix and runs the real Pi recorder offline
   for (const path of ['bin/meshpi.mjs', 'src/transcript.mjs', 'extensions/transcript.mjs', 'npm-shrinkwrap.json']) {
     assert.ok(packed.files.some((file) => file.path === path), path);
   }
-  assert.ok(packed.files.every((file) => !/^(tests|node_modules|\.git|\.meshpi)\//.test(file.path)));
+  assert.ok(packed.files.every((file) => !/^(tests|node_modules|server|deploy|\.git|\.meshpi)\//.test(file.path)));
   const prefix = join(box.base, 'installed');
   npm(['install', '--global', '--prefer-offline', '--ignore-scripts', '--no-audit', '--no-fund',
     '--prefix', prefix, join(box.base, packed.filename)]);
@@ -41,7 +41,7 @@ test('package installs into a clean prefix and runs the real Pi recorder offline
   // Exercise the exact source-directory install command documented in README too.
   const sourcePrefix = join(box.base, 'source-install');
   npm(['install', '--global', '--install-links', '--prefer-offline', '--ignore-scripts',
-    '--no-audit', '--no-fund', '--prefix', sourcePrefix, '.']);
+    '--no-audit', '--no-fund', '--prefix', sourcePrefix, './apps/cli'], join(root, '..', '..'));
   const sourceCommand = join(sourcePrefix, 'bin', 'meshpi');
   const doctor = run(box, ['doctor'], sourceCommand);
   assert.equal(doctor.status, 0, doctor.stderr);

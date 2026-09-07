@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { createApp } from '../app.mjs';
+import { createApp } from '../src/app.mjs';
 
 test('health checks distinguish process liveness from database readiness', async (t) => {
   let fail = false;

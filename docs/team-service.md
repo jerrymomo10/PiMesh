@@ -10,19 +10,19 @@ Node.js + PostgreSQL 服务提供 `/` 团队目录页面，展示用户、团队
 ## 配置与运行
 
 ```sh
-npm ci --prefix server --ignore-scripts
-npm test --prefix server
+npm ci --prefix apps/server --ignore-scripts
+npm test --prefix apps/server
 # 通过运行环境注入 DATABASE_URL，再执行：
-npm run migrate --prefix server
-npm start --prefix server
+npm run migrate --prefix apps/server
+npm start --prefix apps/server
 ```
 
-`migrations/001-directory.sql` 是事务式初始迁移，仅新增表和迁移版本标记。
+`apps/server/migrations/001-directory.sql` 是事务式初始迁移，仅新增表和迁移版本标记。
 用户 ID 与邮箱前缀一致，用户 ID 和邮箱唯一；项目短名在团队内唯一，关联使用外键。
 没有自动身份验证或邮箱认证，后续写入 API 需实现相应规则。
 生产服务启动不自动执行迁移。更新前备份，迁移失败不能继续部署；不自动删除表回退。
 
-参考 `deploy/server.env.example` 和 systemd 模板：
+参考 `apps/server/deploy/server.env.example` 和 systemd 模板：
 
 | 变量 | 作用 |
 | --- | --- |
@@ -34,7 +34,7 @@ npm start --prefix server
 
 独立系统账户 `pimesh` 运行应用，systemd 读取 root 所有、0600 的环境文件。
 证书路径必须允许应用账户读取，私钥仅 root 和应用组可读。
-应用目录 `/opt/pimesh/server`，配置 `/etc/pimesh/server.env`，systemd 单元 `pimesh-team`。
+部署时复制 `apps/server/` 内容；应用目录 `/opt/pimesh/server`（启动入口 `src/index.mjs`），配置 `/etc/pimesh/server.env`，systemd 单元 `pimesh-team`。
 PostgreSQL 只监听 `127.0.0.1:5432`，应用使用独立非超级用户及 SCRAM 密码认证。
 
 ## 访问与安全边界

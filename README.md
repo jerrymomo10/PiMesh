@@ -29,10 +29,10 @@ PiMesh 面向算法团队：每位同学在自己的电脑或开发环境中通�
 ```sh
 git clone https://github.com/jerrymomo10/PiMesh.git
 cd PiMesh
-npm ci --ignore-scripts
-npm run check
-npm test
-npm install --global --install-links --ignore-scripts .
+npm ci --prefix apps/cli --ignore-scripts
+npm run check --prefix apps/cli
+npm test --prefix apps/cli
+npm install --global --install-links --ignore-scripts ./apps/cli
 meshpi setup
 meshpi doctor
 ```
@@ -40,14 +40,14 @@ meshpi doctor
 如果 npm 全局目录不可写，可安装到用户目录：
 
 ```sh
-npm install --global --install-links --ignore-scripts --prefix "$HOME/.local" .
+npm install --global --install-links --ignore-scripts --prefix "$HOME/.local" ./apps/cli
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
 将上述 PATH 配置加入自己的 `~/.zshrc` 后，新终端也可使用 `meshpi`。
 不需要 `sudo`。此包尚未发布到 npm registry，请从源码安装。
 安装命令仅注册 `meshpi`；不会覆盖机器上已有的 `pi` 命令。
-更新时在安全的工作区拉取新版本，重新执行 `npm ci`、检查、测试和安装命令。
+更新时在安全的工作区拉取新版本，重新执行上述客户端依赖安装、检查、测试和安装命令。
 如果使用功能分支，请先切换到对应分支；尚未合并的代码不会出现在 main 中。
 
 ## 使用
@@ -107,20 +107,35 @@ Transcript 可能包含项目代码、工具输出及用户输入的敏感信息
 当前提供本地持久保存，不提供远端备份或团队访问。共享前的权限和脱敏规则仍待设计。
 默认关闭 Pi telemetry；可通过供应商配置执行正常模型请求。
 
+## 仓库结构
+
+```text
+apps/
+├── cli/          meshpi 客户端：bin、src、extensions、tests
+└── server/       团队服务：src、public、migrations、tests、deploy
+docs/            产品设计、部署说明与任务交接
+.github/         CI
+package.json     统一开发命令
+```
+
+两个应用独立安装和部署，各自保留依赖锁文件。根目录不发布安装包；
+开发全部应用使用 `npm run deps`，只使用客户端则按上方客户端安装步骤执行。
+
 ## 开发与测试
 
 实现采用 Node.js ESM 和 Pi extension，直接运行，无编译步骤。
-`npm-shrinkwrap.json` 随安装包分发，锁定依赖树，确保源码安装和打包安装使用一致版本。
+`apps/cli/npm-shrinkwrap.json` 随客户端安装包分发，锁定依赖树，确保源码安装和打包安装使用一致版本。
 
 ```sh
 npm ci --ignore-scripts
+npm run deps
 npm run check
 npm test
 npm run test:install
 npm start -- --help
 ```
 
-`npm test` 包含单元、真实 Pi 离线模型集成和临时目录安装测试。
+`npm test` 执行客户端与服务端测试，包含真实 Pi 离线模型集成和临时目录安装测试。
 安装测试优先使用 npm 本地缓存，缺失的包元数据仍需访问 npm registry；
 模型集成测试完全离线，无需模型凭据，也不安装到个人全局目录。
 测试使用合成数据，不调用公司服务、不提交真实训练任务。
@@ -133,7 +148,7 @@ Agent 的具体协作约定见 [AGENTS.md](AGENTS.md)。
 
 ## 团队服务基础
 
-`server/` 提供团队目录只读页面、PostgreSQL 查询、存活与就绪检查。
+`apps/server/` 提供团队目录只读页面、PostgreSQL 查询、存活与就绪检查。
 页面可查看用户、团队、成员关系、设备和项目，支持搜索、分页和手动刷新。
 启用目录需要 HTTPS 和独立查看账号；这是临时管理访问保护，不是团队成员登录。
 数据库为空时显示空状态，不预置真实或示例成员。注册、邀请、项目创建等写入 API 尚未实现。

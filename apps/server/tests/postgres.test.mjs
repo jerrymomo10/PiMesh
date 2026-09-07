@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
-import { createDirectory } from '../directory.mjs';
+import { createDirectory } from '../src/directory.mjs';
 
 test('directory PostgreSQL migration, constraints, pagination and field selection', { skip: !process.env.TEST_DATABASE_URL }, async () => {
   const pool = new pg.Pool({ connectionString: process.env.TEST_DATABASE_URL });
