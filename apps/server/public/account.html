@@ -3,9 +3,10 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PiMesh · 账号</title><link rel="stylesheet" href="/account.css"><script src="/account.js" type="module"></script></head>
 <body><main>
 <p class="brand">PiMesh · LOCAL AGENTS. SHARED INTELLIGENCE.</p>
-<h1>欢迎加入 PiMesh</h1><p>通过邀请码注册，开始你的研究。当前不上传个人对话。</p>
+<nav aria-label="主导航"><a href="/">工作台</a><a href="/account" aria-current="page">我的账号</a><a href="/admin/teams">平台管理</a></nav>
+<h1>我的账号</h1><p>通过邀请码注册，开始你的研究。当前不上传个人对话。</p>
 <p id="message" role="status" aria-live="polite">正在检查登录状态…</p>
-<section id="signed-in" hidden><h2>我的账号</h2><dl id="profile"></dl><p>邮箱未经验证。团队和项目功能尚未开放。</p><button id="logout">退出登录</button></section>
+<section id="signed-in" hidden><h2>我的账号</h2><dl id="profile"></dl><p>邮箱未经验证。<a href="/">进入团队工作台</a></p><button id="logout">退出登录</button></section>
 <div id="signed-out" hidden class="forms">
 <form id="login"><h2>登录</h2>
 <label>用户名或邮箱<input name="login" autocomplete="username" required maxlength="254"></label>

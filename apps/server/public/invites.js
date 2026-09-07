@@ -14,7 +14,7 @@ async function load() {
     for (const item of items) {
       const row = document.createElement('div'); row.className = 'invite';
       const state = item.used_at ? '已使用' : item.revoked_at ? '已撤销' : new Date(item.expires_at) <= new Date() ? '已过期' : '可使用';
-      const text = document.createElement('p'); text.textContent = `${item.invite_id} · ${state} · 到期 ${new Date(item.expires_at).toLocaleString()}`; row.append(text);
+      const text = document.createElement('p'); text.textContent = `记录 ID（不是邀请码）：${item.invite_id} · ${state} · 到期 ${new Date(item.expires_at).toLocaleString()}`; row.append(text);
       if (state === '可使用') {
         const button = document.createElement('button'); button.textContent = '撤销';
         button.addEventListener('click', async () => {
@@ -35,7 +35,7 @@ $('generate').addEventListener('submit', async (event) => {
     const form = new FormData(event.target);
     const { items } = await api('', { count: Number(form.get('count')), days: Number(form.get('days')) });
     // Append so generating another batch does not discard unsaved codes.
-    $('codes').textContent += items.map((item) => `${item.invite_id}  ${item.code}`).join('\n') + '\n';
+    $('codes').textContent += items.map((item) => `注册邀请码：${item.code}\n记录 ID（不是邀请码）：${item.invite_id}\n`).join('\n') + '\n';
     $('message').textContent = '生成成功。完整邀请码不会再次显示，请安全保存。'; await load();
   } catch (error) { $('message').textContent = error.message; }
   finally { button.disabled = false; }

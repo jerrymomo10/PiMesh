@@ -22,6 +22,8 @@
 
 | 注册密码最低 8 位 | `codex/password-minimum-eight` | [#9](https://github.com/jerrymomo10/PiMesh/pull/9) | [password-minimum-eight](password-minimum-eight.md) |
 
+| 团队工作台与统一访问入口 | `codex/team-workspace` | 待创建 | [team-workspace](team-workspace.md) |
+
 ## 新任务模板
 
 复制以下内容到 `<task-id>.md`，填写实际信息，并在上表添加入口。

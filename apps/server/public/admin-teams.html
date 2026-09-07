@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PiMesh · 团队管理</title><link rel="stylesheet" href="/account.css"><script src="/admin/teams.js" type="module"></script></head>
+<body><main><p class="brand">PiMesh · 平台管理</p>
+<nav aria-label="管理导航"><a href="/">用户工作台</a><a href="/admin/teams" aria-current="page">团队管理</a><a href="/admin/invites">注册邀请</a><a href="/admin/directory">全站目录（查看账号）</a></nav>
+<h1>团队管理</h1><p>仅平台管理员可创建团队。负责人需先通过注册邀请创建账号。</p>
+<p id="message" role="status" aria-live="polite"></p>
+<form id="create"><h2>创建团队</h2><label>团队名称<input name="name" required maxlength="100"></label><label>负责人用户名<input name="owner" required minlength="3" maxlength="32" pattern="[A-Za-z][A-Za-z0-9_\-]{2,31}" autocomplete="off"></label><small>填写已注册用户的准确用户名，创建后此用户成为团队负责人。</small><button>创建团队</button></form>
+<section><h2>已有团队</h2><button id="refresh">刷新列表</button><div id="teams"></div></section>
+</main></body></html>
