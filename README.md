@@ -1,163 +1,170 @@
-# PiMesh
+<p align="center">
+  <img src="docs/assets/pimesh-banner.svg" alt="PiMesh — Local agents. Shared intelligence. 面向算法研究团队的协作 harness" width="100%">
+</p>
 
-**Local agents. Shared intelligence.**
+<p align="center">
+  <strong>让每个人的研究过程，成为团队可以追溯的知识。</strong><br>
+  基于 Pi 的本地 Agent 客户端与团队协作基础设施。
+</p>
 
-PiMesh 面向算法团队：每位同学在自己的电脑或开发环境中通过 **`meshpi`** 使用 Pi，
-可以参与多个项目，同一个项目也可以由多人负责。目标是把项目进展、实验记录、
-踩坑经验和公共工具沉淀为团队资产，让协作、全局管理和组周报更轻松。
+<p align="center">
+  <a href="https://github.com/jerrymomo10/PiMesh/actions/workflows/test.yml"><img src="https://github.com/jerrymomo10/PiMesh/actions/workflows/test.yml/badge.svg?branch=main" alt="CI"></a>
+  <img src="https://img.shields.io/badge/stage-early%20development-527b61?style=flat-square" alt="Early development">
+  <img src="https://img.shields.io/badge/Node.js-%E2%89%A522.19-365b44?style=flat-square" alt="Node.js >=22.19">
+  <img src="https://img.shields.io/badge/Pi%20Core-0.84.2-587461?style=flat-square" alt="Pi Core 0.84.2">
+</p>
 
-## 当前版本：本地客户端 0.1
+<p align="center">
+  <a href="#为什么是-pimesh">为什么 PiMesh</a> ·
+  <a href="#架构">架构</a> ·
+  <a href="#快速开始">快速开始</a> ·
+  <a href="#路线图">路线图</a> ·
+  <a href="docs/team-service.md">部署文档</a>
+</p>
 
-已实现：
+---
 
-- `meshpi` 启动锁定的 Pi Core 0.84.2，无需单独安装或启动 `pi`。
-- `meshpi setup`、`meshpi paths`、`meshpi doctor`。
-- 按本地工作目录隔离原生 Session，支持 `--continue`、`--resume`。
-- 持久保存原生 Session 与追加式 Transcript 事件；不以摘要替换原始记录。
-- 无真实模型、无 API 密钥的自动测试，以及打包安装测试。
+## 为什么是 PiMesh
 
-尚未实现：团队业务 API、跨机器同步、成员身份、实验平台连接器、Memory 检索与分层、
-管理看板及周报生成。**当前版本不会自动把 Transcript 上传给团队。**
-已确定的产品方向与待定问题见 [设计边界](docs/decisions.md)。
+研究工作发生在不同的电脑、开发机和项目目录中。PiMesh 希望把本地 Agent 的工作过程保存下来，
+逐步连接到团队的成员、项目和知识，让协作不再只依赖零散的聊天与口头交接。
 
-## 安装
+<table>
+<tr>
+<td width="33%" valign="top">
+<strong>01 · 本地开展研究</strong><br><br>
+通过 <code>meshpi</code> 使用 Pi 的模型与工具能力。按工作目录隔离会话，在自己的开发环境中继续工作。
+</td>
+<td width="33%" valign="top">
+<strong>02 · 保留完整过程</strong><br><br>
+保存原生 Session 与追加式 Transcript。上下文压缩不会替代已保存的历史，失败与中断也有迹可循。
+</td>
+<td width="33%" valign="top">
+<strong>03 · 逐步连接团队</strong><br><br>
+已提供受保护的团队目录查看页。成员认证、项目协作与共享 Memory 是接下来要建设的能力。
+</td>
+</tr>
+</table>
 
-面向 macOS、Linux、Windows 等多端开发环境，需要 Git、Node.js **22.19.0 或以上**及 npm。
-当前 CI 已覆盖 macOS 和 Linux；Windows 尚未验证，建议先通过 WSL 使用 Linux 环境。
-以下命令使用 POSIX shell（macOS、Linux 或 WSL）；首次安装依赖需要联网。
+> **当前阶段：早期开发。** 本地客户端和团队目录只读服务已实现；团队登录、邀请、项目创建与跨端同步尚未实现。当前不会自动上传 Transcript。
+
+## 架构
+
+<img src="docs/assets/architecture.svg" alt="当前架构：本地 meshpi 调用 Pi 并保存 Session 和 Transcript；独立浏览器目录经 HTTPS API 访问 PostgreSQL。客户端到团队服务的连接仍在规划中。" width="100%">
+
+两个应用独立运行、独立锁定依赖：本地 CLI 保存研究过程，服务端提供目录查询。
+实线表示已实现的路径，虚线表示规划中的连接。完整边界见 [设计决策](docs/decisions.md)。
+
+## 快速开始
+
+需要 **Git、Node.js ≥22.19.0 和 npm**。当前 CI 覆盖 macOS / Linux，Windows 原生环境尚未验证；
+Windows 用户可先在 WSL 中尝试以下 POSIX shell 命令。首次安装需要联网。
 
 ```sh
 git clone https://github.com/jerrymomo10/PiMesh.git
 cd PiMesh
 npm ci --prefix apps/cli --ignore-scripts
-npm run check --prefix apps/cli
-npm test --prefix apps/cli
 npm install --global --install-links --ignore-scripts ./apps/cli
 meshpi setup
 meshpi doctor
 ```
 
-如果 npm 全局目录不可写，可安装到用户目录：
-
-```sh
-npm install --global --install-links --ignore-scripts --prefix "$HOME/.local" ./apps/cli
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-将上述 PATH 配置加入自己的 `~/.zshrc` 后，新终端也可使用 `meshpi`。
-不需要 `sudo`。此包尚未发布到 npm registry，请从源码安装。
-安装命令仅注册 `meshpi`；不会覆盖机器上已有的 `pi` 命令。
-更新时在安全的工作区拉取新版本，重新执行上述客户端依赖安装、检查、测试和安装命令。
-如果使用功能分支，请先切换到对应分支；尚未合并的代码不会出现在 main 中。
-
-## 使用
-
-在实际研究项目目录中启动：
+在研究项目目录运行 `meshpi`，使用 `/login` 配置模型供应商，再用 `/model` 选择模型。
+这里的 `/login` 是模型认证，不是团队登录。模型请求使用所选供应商的认证与计费。
 
 ```sh
 cd /path/to/research-project
-meshpi
+meshpi                           # 开始研究
+meshpi --continue                # 继续当前目录最近的会话
+meshpi --resume                  # 选择历史会话
+meshpi paths                     # 查看本地保存位置
 ```
 
-首次使用，在交互界面输入 `/login` 配置模型供应商，再用 `/model` 选择模型。
-也可使用 Pi 支持的供应商环境变量。真实模型调用采用所选供应商的认证和计费。
-meshpi 使用独立的 Agent 配置目录，不自动复制已有 Pi 的凭据。
+默认保存到 `~/.meshpi/`，支持绝对路径 `MESHPI_HOME` 覆盖。安装包尚未发布到 npm registry。
+用户目录安装、升级旧数据目录及更多参数见 [完整使用指南](docs/getting-started.md)。
 
-```sh
-meshpi --continue                 # 继续当前目录的最近会话
-meshpi --resume                   # 选择历史会话
-meshpi --print "分析当前项目结构"  # 非交互执行，同样保存 Transcript
-meshpi paths                      # 查看当前目录的存储路径
-meshpi --pi-help                  # Pi 原生参数说明（其中名称显示为 pi）
+## 一次研究如何留下记录
+
+```mermaid
+flowchart LR
+    A[进入项目目录] --> B[启动 meshpi]
+    B --> C[配置模型并开始研究]
+    C --> D[模型响应与工具事件]
+    D --> E[原生 Session]
+    D --> F[追加式 Transcript]
+    E --> G[下次继续或恢复会话]
+    F --> H[保留过程与追溯来源]
 ```
 
-Pi 的 `--provider`、`--model`、`--extension` 等参数可继续使用。
-`--no-session` 和 `--session-dir` 由 meshpi 禁用／管理，避免误关闭记录或打乱目录。
-`meshpi` 复用 Pi 的本地工具执行能力，当前未实现 Research Pi 的额外项目沙箱。
+原生 Session 支持继续工作；Transcript 保存 Pi 已交付的消息、事件、流式增量和快照。
+不声称能恢复工具内部已截断的输出或模型尚未返回的内容。
+记录默认仅本地保存，可能含代码及敏感输入，不应提交到公开仓库。详见 [Transcript 契约](docs/transcripts.md)。
 
-## Transcript 保存
+## 团队目录
 
-默认存储根目录为用户主目录下的 `~/.meshpi/`，可通过绝对路径 `MESHPI_HOME` 改变。
-Windows 原生环境对应 `%USERPROFILE%\.meshpi\`（尚未验证）。
+团队服务提供一个 **HTTPS + 独立查看账号保护的只读页面**：
 
-升级后不会自动读取、迁移或删除旧的 `~/.local/state/meshpi/`。旧凭据和会话仍保留在原处；
-如需继续使用原有记录，在启动前设置 `export MESHPI_HOME="$HOME/.local/state/meshpi"`。
-使用新默认目录时需要重新 `/login`，`--continue`／`--resume` 仅查找新目录中的会话。
+| 数据视图 | 可查看内容 |
+| --- | --- |
+| 用户与团队 | 用户身份字段、团队名称与创建者 |
+| 成员关系 | 用户所属团队、角色和状态 |
+| 设备与项目 | 客户端实例、项目归属及负责人 |
+
+支持计数、搜索、分页和手动刷新，直接读取 PostgreSQL。空库显示空状态，不预置示例成员。
+临时查看账号不是最终团队身份体系；写入 API 尚未实现。按 [服务部署指南](docs/team-service.md) 配置独立实例。
+
+## 路线图
+
+| 阶段 | 内容 | 状态 |
+| --- | --- | --- |
+| 本地研究基础 | CLI、Session 续接、Transcript 持久化、离线测试与安装验证 | 已实现 |
+| 团队目录基础 | PostgreSQL、受保护的只读页面、搜索与分页 | 已实现 |
+| 团队身份 | 邮箱身份、设备注册、邀请、成员关系与权限 | 待实现 |
+| 项目协作 | 项目创建、本地目录绑定、研究记录归属 | 待实现 |
+| 共享知识 | 实验记录、Memory 检索、工具沉淀与周报 | 设计中 |
+
+Memory 分层、Transcript 可见性与同步策略尚未定案。路线图是方向说明，不是已经交付的功能承诺。
+
+## 开发与贡献
 
 ```text
-.meshpi/
-├── agent/                         配置、认证等本地状态
-└── workspaces/<本地目录标识>/
-    ├── sessions/                  Pi 原生 JSONL 会话，可继续／恢复
-    └── transcripts/               追加式 JSONL 事件记录
+PiMesh/
+├── apps/
+│   ├── cli/       本地客户端 · Pi 扩展 · 会话持久化
+│   └── server/    团队 API · 目录页面 · 数据库迁移 · 部署
+├── docs/          使用指南 · 设计边界 · 工程交接
+└── .github/       自动验证
 ```
-
-保存内容包括用户消息、助手消息、Pi 暴露的流式增量、工具调用与返回结果，
-以及会话、分支和压缩等事件与会话快照。不会主动缩短消息、删掉旧轮次或自动清理历史。
-每条事件写入后同步落盘；不同运行实例使用独立文件，避免互相覆盖。
-上下文压缩改变模型下一轮看到的内容，不删除此前已保存的 Transcript。
-
-这里的“完整”指 **Pi 已交付给客户端的会话内容和事件**，不是终端录像或供应商网络抓包。
-工具本身已截断的底层日志、模型未返回的内容、强杀前尚未交付的事件，无法凭空恢复。
-流式事件保存增量，完整终态消息另行保存；不重复保存每个 token 对应的增长快照。
-详细格式、故障边界和验证方式见 [Transcript 说明](docs/transcripts.md)。
-
-Transcript 可能包含项目代码、工具输出及用户输入的敏感信息。原文不做破坏性脱敏；
-存储目录默认仅当前用户访问，文件默认 `0600`，禁止提交到公开 Git 仓库。
-当前提供本地持久保存，不提供远端备份或团队访问。共享前的权限和脱敏规则仍待设计。
-默认关闭 Pi telemetry；可通过供应商配置执行正常模型请求。
-
-## 仓库结构
-
-```text
-apps/
-├── cli/          meshpi 客户端：bin、src、extensions、tests
-└── server/       团队服务：src、public、migrations、tests、deploy
-docs/            产品设计、部署说明与任务交接
-.github/         CI
-package.json     统一开发命令
-```
-
-两个应用独立安装和部署，各自保留依赖锁文件。根目录不发布安装包；
-开发全部应用使用 `npm run deps`，只使用客户端则按上方客户端安装步骤执行。
-
-## 开发与测试
-
-实现采用 Node.js ESM 和 Pi extension，直接运行，无编译步骤。
-`apps/cli/npm-shrinkwrap.json` 随客户端安装包分发，锁定依赖树，确保源码安装和打包安装使用一致版本。
 
 ```sh
 npm ci --ignore-scripts
 npm run deps
 npm run check
 npm test
-npm run test:install
-npm start -- --help
 ```
 
-`npm test` 执行客户端与服务端测试，包含真实 Pi 离线模型集成和临时目录安装测试。
-安装测试优先使用 npm 本地缓存，缺失的包元数据仍需访问 npm registry；
-模型集成测试完全离线，无需模型凭据，也不安装到个人全局目录。
-测试使用合成数据，不调用公司服务、不提交真实训练任务。
+`npm test` 包含客户端、服务端与临时前缀安装测试；模型测试完全离线，安装测试可能访问 npm registry。
+真实 PostgreSQL 测试需要单独的临时测试库，默认跳过。更多说明见 [客户端](apps/cli/README.md) 与 [服务端](apps/server/README.md)。
 
-代码变更使用功能分支，检查后及时提交并推送 GitHub；通过 PR 合并。
-开始新任务前在安全的工作区更新 main：`git pull --ff-only`；继续已有任务则同步对应功能分支。
-Agent 的具体协作约定见 [AGENTS.md](AGENTS.md)。
-多台电脑独立使用 Codex 时，按[多机协作流程](docs/collaboration.md)同步代码和交接文档，
-从[任务索引](docs/tasks/README.md)接手。这不会同步完整 Codex 对话或 meshpi Transcript。
+欢迎通过 [Issues](https://github.com/jerrymomo10/PiMesh/issues) 讨论问题和方案，通过功能分支与 PR 提交改动。
+协作前请阅读 [AGENTS.md](AGENTS.md) 和 [多机交接流程](docs/collaboration.md)。
 
-## 团队服务基础
+## 文档导航
 
-`apps/server/` 提供团队目录只读页面、PostgreSQL 查询、存活与就绪检查。
-页面可查看用户、团队、成员关系、设备和项目，支持搜索、分页和手动刷新。
-启用目录需要 HTTPS 和独立查看账号；这是临时管理访问保护，不是团队成员登录。
-数据库为空时显示空状态，不预置真实或示例成员。注册、邀请、项目创建等写入 API 尚未实现。
-部署与访问方式见 [服务部署](docs/team-service.md)；服务地址与数据库连接通过配置提供。
+| 入门与运行 | 设计与协作 |
+| --- | --- |
+| [客户端安装与使用](docs/getting-started.md) | [产品边界与设计决策](docs/decisions.md) |
+| [团队服务部署](docs/team-service.md) | [多机协作与交接](docs/collaboration.md) |
+| [Transcript 契约](docs/transcripts.md) | [开发任务索引](docs/tasks/README.md) |
 
-## 参考与许可
+## 致谢与许可
 
-- [Pi](https://github.com/earendil-works/pi)：本地 Agent 运行时。
-- [Research Pi](https://github.com/RosMarinas/Research-Pi)：项目级研究状态、原生会话与实验记忆的设计参考。
+基于 [Pi](https://github.com/earendil-works/pi) 构建本地 Agent 运行时，参考
+[Research Pi](https://github.com/RosMarinas/Research-Pi) 的研究状态与实验记忆方向；未复制其源码。
 
-PiMesh 原创代码的开源许可证尚未选定，当前包标记为 `UNLICENSED` 并禁止 registry 发布。
-依赖保留各自许可证；本实现未复制 Research Pi 的源码。
+**项目源码公开，原创代码的开源许可证尚未选定。** 应用包标记为 `UNLICENSED`，未发布至 npm registry；依赖保留各自许可证。
+
+<p align="center">
+  <img src="docs/assets/pimesh-logo.svg" width="40" alt="PiMesh 项目图标"><br>
+  <sub>Local agents. Shared intelligence.</sub>
+</p>

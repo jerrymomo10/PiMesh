@@ -14,6 +14,8 @@
 
 | 客户端与服务端目录分层 | `codex/app-layout` | [#5](https://github.com/jerrymomo10/PiMesh/pull/5)（统一合入 main） | [app-layout](app-layout.md) |
 
+| README 品牌与项目首页 | `codex/readme-branding` | 待创建 | [readme-branding](readme-branding.md) |
+
 ## 新任务模板
 
 复制以下内容到 `<task-id>.md`，填写实际信息，并在上表添加入口。
