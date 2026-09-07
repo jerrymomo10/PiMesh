@@ -18,6 +18,8 @@
 
 | 服务端自动部署 | `codex/server-deploy` | [#7](https://github.com/jerrymomo10/PiMesh/pull/7) | [server-deploy](server-deploy.md) |
 
+| 邀请码注册与账号登录 | `feat/invite-auth` | [#8](https://github.com/jerrymomo10/PiMesh/pull/8) | [invite-auth](invite-auth.md) |
+
 ## 新任务模板
 
 复制以下内容到 `<task-id>.md`，填写实际信息，并在上表添加入口。

@@ -1,0 +1,20 @@
+:root { font: 16px/1.6 system-ui, sans-serif; color: #20392e; background: #f4f6f2; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 960px; margin: 48px auto; padding: 24px; }
+.brand { font-size: 12px; letter-spacing: .1em; }
+.forms { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+form, section { padding: 24px; background: white; border: 1px solid #cad5cc; border-radius: 12px; }
+label { display: block; margin: 16px 0 4px; }
+input, button { font: inherit; }
+input { display: block; width: 100%; padding: 10px; border: 1px solid #708a78; border-radius: 6px; }
+button { margin-top: 20px; padding: 10px 20px; color: white; background: #24563e; border: 0; border-radius: 6px; cursor: pointer; }
+button:disabled { opacity: .55; cursor: wait; }
+button:focus-visible, input:focus-visible { outline: 3px solid #ad792d; outline-offset: 3px; }
+small { display: block; color: #526657; }
+#message { min-height: 28px; white-space: pre-wrap; overflow-wrap: anywhere; }
+dt { font-weight: 600; } dd { margin: 0 0 12px; overflow-wrap: anywhere; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.invite { padding: 16px 0; border-bottom: 1px solid #cad5cc; overflow-wrap: anywhere; }
+[hidden] { display: none !important; }
+@media (max-width: 640px) { .forms { grid-template-columns: 1fr; } main { margin: 12px auto; padding: 16px; } }

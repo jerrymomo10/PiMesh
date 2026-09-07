@@ -1,6 +1,6 @@
 # PiMesh 团队服务
 
-`src/` 保存 HTTP/TLS 服务、只读目录查询和迁移入口，`public/` 保存页面，
+服务端版本 **0.2.0**。`src/` 保存 HTTP/TLS 服务、邀请注册与登录、只读目录查询和迁移入口，`public/` 保存页面，
 `migrations/` 为数据库迁移，`tests/` 为验证，`deploy/` 为部署模板。
 
 从仓库根目录运行：
@@ -15,3 +15,7 @@ npm start --prefix apps/server
 
 部署时将此目录内容复制到 `/opt/pimesh/server`，systemd 启动 `src/index.mjs`。
 详见 [部署说明](../../docs/team-service.md)。
+
+账号入口 `/account`、管理员入口 `/admin/invites`，迁移与配置见 [账号指南](../../docs/auth.md)。
+默认不启用账号功能；不自动迁移生产库，不自动创建默认管理员密码。
+存活检查返回应用版本，响应头 `X-PiMesh-Version` 便于确认实际部署版本。

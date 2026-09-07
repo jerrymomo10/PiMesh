@@ -20,7 +20,19 @@ if (dashboardEnabled && (!/^[a-f0-9]{64}$/.test(accessHash || '') || !certFile))
   throw new Error('Directory requires TLS and DIRECTORY_ACCESS_HASH');
 }
 const tlsOptions = certFile ? { cert: readFileSync(certFile), key: readFileSync(keyFile), minVersion: 'TLSv1.2' } : undefined;
-const server = createApp(pool, { dashboardEnabled, accessHash, tlsOptions });
+const authEnabled = process.env.AUTH_ENABLED === 'true';
+const publicOrigin = process.env.PUBLIC_ORIGIN;
+const adminHash = process.env.INVITE_ADMIN_HASH;
+if (authEnabled) {
+  if (!tlsOptions || !/^[a-f0-9]{64}$/.test(adminHash || '') || !publicOrigin) throw new Error('Auth requires TLS, PUBLIC_ORIGIN and INVITE_ADMIN_HASH');
+  const parsed = new URL(publicOrigin);
+  if (parsed.protocol !== 'https:' || parsed.origin !== publicOrigin) throw new Error('PUBLIC_ORIGIN must be an HTTPS origin without a trailing slash');
+  const schema = await pool.query("SELECT 1 FROM schema_migrations WHERE version='002-invite-auth'");
+  if (!schema.rows.length) throw new Error('Apply 002-invite-auth before enabling auth');
+}
+const server = createApp(pool, { dashboardEnabled, accessHash, tlsOptions, authEnabled, publicOrigin, adminHash });
+server.requestTimeout = 15000;
+server.headersTimeout = 10000;
 server.listen(port, process.env.HOST || '127.0.0.1', () => {
   process.stdout.write(`PiMesh team service listening on port ${port}\n`);
 });

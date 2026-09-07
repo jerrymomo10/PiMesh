@@ -5,6 +5,30 @@ on:
 permissions:
   contents: read
 jobs:
+  auth-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: pimesh_test
+          POSTGRES_PASSWORD: synthetic-ci-password
+          POSTGRES_DB: pimesh_test_auth
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+      - run: npm ci --prefix apps/server --ignore-scripts
+      - run: npm test --prefix apps/server
+        env:
+          TEST_DATABASE_URL: postgres://pimesh_test:synthetic-ci-password@127.0.0.1:5432/pimesh_test_auth
   test:
     strategy:
       matrix:

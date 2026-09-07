@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PiMesh · 账号</title><link rel="stylesheet" href="/account.css"><script src="/account.js" type="module"></script></head>
+<body><main>
+<p class="brand">PiMesh · LOCAL AGENTS. SHARED INTELLIGENCE.</p>
+<h1>欢迎加入 PiMesh</h1><p>通过邀请码注册，开始你的研究。当前不上传个人对话。</p>
+<p id="message" role="status" aria-live="polite">正在检查登录状态…</p>
+<section id="signed-in" hidden><h2>我的账号</h2><dl id="profile"></dl><p>邮箱未经验证。团队和项目功能尚未开放。</p><button id="logout">退出登录</button></section>
+<div id="signed-out" hidden class="forms">
+<form id="login"><h2>登录</h2>
+<label>用户名或邮箱<input name="login" autocomplete="username" required maxlength="254"></label>
+<label>密码<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label>
+<button>登录</button><p>暂不提供邮箱找回密码，请妥善保存密码。</p></form>
+<form id="register"><h2>邀请码注册</h2>
+<label>邀请码<input name="invite" required minlength="43" maxlength="43" autocomplete="off" spellcheck="false"></label>
+<label>用户名<input name="username" autocomplete="username" pattern="[A-Za-z][A-Za-z0-9_\-]{2,31}" required minlength="3" maxlength="32" aria-describedby="username-help"></label>
+<small id="username-help">3–32 位，英文字母开头，可含数字、下划线和短横线，不区分大小写。</small>
+<label>邮箱<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
+<small>不发送验证邮件；邮箱不代表已验证身份。</small>
+<label>密码<input name="password" type="password" autocomplete="new-password" required minlength="15" maxlength="128"></label>
+<small>15–128 位，推荐使用密码管理器生成并保存。</small>
+<button>创建账号</button></form></div>
+</main></body></html>
