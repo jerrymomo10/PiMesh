@@ -1,0 +1,19 @@
+{
+  "name": "@pimesh/meshpi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PiMesh local research client with persistent transcripts",
+  "type": "module",
+  "license": "UNLICENSED",
+  "bin": { "meshpi": "bin/meshpi.mjs" },
+  "files": ["bin/", "src/", "extensions/", "README.md", "AGENTS.md", "docs/", "npm-shrinkwrap.json"],
+  "engines": { "node": ">=22.19.0" },
+  "scripts": {
+    "start": "node bin/meshpi.mjs",
+    "check": "node --check bin/meshpi.mjs && node --check src/paths.mjs && node --check src/transcript.mjs && node --check extensions/transcript.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:install": "node --test tests/install.test.mjs",
+    "prepack": "npm run check"
+  },
+  "dependencies": { "@earendil-works/pi-coding-agent": "0.84.2" }
+}

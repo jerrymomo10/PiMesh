@@ -29,3 +29,5 @@ artifacts/
 runs/
 logs/
 memory/private/
+.meshpi/
+*.tgz
