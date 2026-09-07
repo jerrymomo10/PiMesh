@@ -71,3 +71,52 @@ sudo systemctl restart pimesh-team
 测试写入合成记录，调用方负责创建空临时库并在完成后删除，不得指向团队库。
 Linux ECS 已验证数据库迁移、重复执行、唯一性和外键、分页、参数化搜索及目录查询。
 服务器 npm 不通时，可上传按锁文件安装的纯 JavaScript 包并在服务器重新测试。
+
+## GitHub Actions 自动部署
+
+`.github/workflows/deploy-server.yml` 在 `main` 的服务端代码或工作流变化时触发，
+也支持 Actions → Deploy team service → Run workflow（选择 main）。PR 只验证，不部署。
+工作流先执行服务端检查、离线测试和部署回滚测试，再进入 `production` 环境部署。
+这是独立于全仓库测试的服务端检查，不依赖 npm 发布账号。
+
+首次在现有 ECS 上配置（需 root，公钥文件为一行 Ed25519 公钥）：
+
+```sh
+sudo bash apps/server/deploy/bootstrap.sh /path/to/deploy-key.pub \
+  https://<server-ip>:8080/api/v1/health/ready /path/to/trusted-server-ca.crt
+```
+
+脚本创建 `pimesh-deploy` 账号，公钥只能调用固定发布脚本，禁止 SSH 转发。
+该账号仅可 sudo 重启 `pimesh-team`，不能 sudo 操作 PostgreSQL。
+应用继续以 `pimesh` 运行；部署代码本身具有应用的数据访问能力，因此部署密钥仍属敏感凭据。
+脚本由 root 安装到 `/usr/local/libexec/pimesh-release`；修改发布脚本或 systemd 设置后需管理员重新安装，
+普通应用发布不自动提升权限更新它们。
+
+GitHub Settings → Environments → production 配置 Secrets：
+
+| 名称 | 内容 |
+| --- | --- |
+| `DEPLOY_HOST` | ECS IP 或主机名 |
+| `DEPLOY_SSH_KEY` | 专用 Ed25519 私钥，不复用个人 SSH 密钥 |
+| `DEPLOY_KNOWN_HOSTS` | 经可信渠道核对的服务器 SSH 公钥记录 |
+
+环境仅允许 main 部署。不要通过在 CI 中临时 ssh-keyscan 来替代主机身份校验。
+自签名 HTTPS 证书的可信副本位于 `/etc/pimesh-deploy/ca.crt`，健康检查不会跳过证书验证。
+证书过期或轮换后需更新该文件；配置地址见 `/etc/pimesh-deploy/health.conf`。
+
+发布包在 Ubuntu runner 使用锁文件安装生产依赖后生成，仅含应用、迁移清单和依赖。
+当前依赖为纯 JavaScript；若以后新增原生模块，需核对 runner 与 ECS 的架构及 ABI。
+服务器 `/opt/pimesh/deployment/releases/` 按提交保存版本，`current` 原子切换；
+systemd override 将启动路径指向 current，原 `/opt/pimesh/server` 保留。
+部署不会改写 `/etc/pimesh/server.env`、TLS 私钥或数据库。
+
+重启或数据库就绪检查失败时自动切回上一版应用，工作流仍报告失败。
+服务器 flock 和 Actions concurrency 防止部署交叉。重启期间有短暂中断，并非零停机部署。
+成功的旧版本保留，需定期人工检查磁盘使用量；不自动删除历史版本。
+
+自动部署要求 migrations 目录与当前发布完全一致，不自动运行迁移或回退数据库。
+迁移变化时，管理员先备份并手工迁移、验证新版本与旧版本兼容，再手工部署对应版本作为新基线；
+不能仅修改迁移清单绕过检查。后续普通代码变更恢复自动部署。
+
+验证：`python3 apps/server/deploy/tests/test_release.py` 覆盖成功、重启失败、健康失败、迁移变化及非法版本。
+真实 PostgreSQL 集成测试仍需临时数据库，自动部署的离线测试不会冒充该项验证。
