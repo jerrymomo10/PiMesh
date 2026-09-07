@@ -16,6 +16,8 @@ PiMesh 是一个基于 Pi、面向算法研究团队的开源协作 harness。
 已增加 `apps/server/` 独立团队服务基础（健康检查、受保护的团队目录与 PostgreSQL 连接），`apps/server/deploy/` 保存 systemd 模板。
 验证命令：`npm ci --prefix apps/server --ignore-scripts`、`npm test --prefix apps/server`。
 迁移：注入 `DATABASE_URL` 后运行 `npm run migrate --prefix apps/server`；真实数据库测试仅使用 `pimesh_test_` 前缀临时库。
+自动部署见 `.github/workflows/deploy-server.yml` 与 `docs/team-service.md`；部署回归验证：
+`python3 apps/server/deploy/tests/test_release.py`。数据库迁移不自动执行。
 团队身份业务 API、Memory 分层与共享策略、公司工具接入仍待设计，不把讨论草案视为已定要求。
 
 - 不将规划中的能力描述为已实现功能。

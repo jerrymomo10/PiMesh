@@ -16,6 +16,8 @@
 
 | README 品牌与项目首页 | `codex/readme-branding` | [#6](https://github.com/jerrymomo10/PiMesh/pull/6) | [readme-branding](readme-branding.md) |
 
+| 服务端自动部署 | `codex/server-deploy` | 待创建 | [server-deploy](server-deploy.md) |
+
 ## 新任务模板
 
 复制以下内容到 `<task-id>.md`，填写实际信息，并在上表添加入口。

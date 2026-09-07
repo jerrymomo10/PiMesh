@@ -1,0 +1,61 @@
+name: Deploy team service
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/server/**'
+      - '.github/workflows/deploy-server.yml'
+  pull_request:
+    paths:
+      - 'apps/server/**'
+      - '.github/workflows/deploy-server.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: team-service-production
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+      - run: npm ci --prefix apps/server --ignore-scripts
+      - run: npm run check --prefix apps/server
+      - run: npm test --prefix apps/server
+      - run: python3 apps/server/deploy/tests/test_release.py
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+      - name: Package locked production dependencies
+        run: |
+          npm ci --prefix apps/server --omit=dev --ignore-scripts
+          tar -czf "$RUNNER_TEMP/server.tgz" -C apps/server src public migrations package.json package-lock.json node_modules
+      - name: Deploy exact commit through restricted SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -f "$RUNNER_TEMP/deploy-key" "$RUNNER_TEMP/known-hosts"' EXIT
+          test -n "$DEPLOY_HOST" && test -n "$DEPLOY_KEY" && test -n "$DEPLOY_KNOWN_HOSTS"
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy-key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/known-hosts"
+          ssh -i "$RUNNER_TEMP/deploy-key" -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known-hosts" \
+            -o ConnectTimeout=15 "pimesh-deploy@$DEPLOY_HOST" "$GITHUB_SHA" < "$RUNNER_TEMP/server.tgz"
